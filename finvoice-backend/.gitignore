@@ -1,0 +1,210 @@
+# ============================================================================
+# FINVOICE BACKEND - .gitignore
+# ============================================================================
+
+# ============================================================================
+# SENSITIVE FILES - NEVER COMMIT
+# ============================================================================
+.env
+*.env
+.env.*
+google-credentials.json
+service-account.json
+*.pem
+*.key
+*.p12
+
+# User credentials file (contains plain passwords)
+database/user_credentials.txt
+user_credentials.txt
+
+# ============================================================================
+# PYTHON
+# ============================================================================
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual Environment
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+.venv/
+
+# Distribution / packaging
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# PyInstaller
+*.manifest
+*.spec
+
+# ============================================================================
+# CACHE & TEMPORARY FILES
+# ============================================================================
+# Audio cache
+cache/
+cache/audio/*.mp3
+cache/audio/*.wav
+*.mp3
+*.wav
+
+# Logs
+logs/
+*.log
+app.log
+
+# Test results
+test_results.json
+.pytest_cache/
+.coverage
+htmlcov/
+
+# ============================================================================
+# DATABASE
+# ============================================================================
+# Database backup files
+*.backup_*
+database/*.backup_*
+*.sql.backup
+
+# PostgreSQL
+*.dump
+*.sql~
+
+# SQLite (if used for dev)
+*.db
+*.sqlite
+*.sqlite3
+
+# ============================================================================
+# IDE / EDITOR
+# ============================================================================
+# VS Code
+.vscode/
+*.code-workspace
+
+# PyCharm
+.idea/
+*.iml
+*.iws
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+*.ipynb
+
+# Spyder
+.spyderproject
+.spyproject
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# ============================================================================
+# OS SPECIFIC
+# ============================================================================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# Linux
+*~
+.directory
+
+# ============================================================================
+# TESTING & DEVELOPMENT
+# ============================================================================
+# Test audio files (keep originals, ignore generated)
+test_audio_generated/
+
+# Development databases
+dev.db
+test.db
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+
+# ============================================================================
+# PACKAGE MANAGERS
+# ============================================================================
+# pip
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Poetry
+poetry.lock
+
+# Pipenv
+Pipfile.lock
+
+# ============================================================================
+# DOCUMENTATION
+# ============================================================================
+# Sphinx documentation
+docs/_build/
+docs/_static/
+docs/_templates/
+
+# ============================================================================
+# DEPLOYMENT
+# ============================================================================
+# Docker
+*.pid
+*.seed
+*.pid.lock
+
+# Deployment configs (may contain secrets)
+docker-compose.override.yml
+.env.production
+
+# ============================================================================
+# BACKUP FILES
+# ============================================================================
+*.bak
+*.backup
+*.old
+*~
+
+# ============================================================================
+# KEEP THESE FILES (Important!)
+# ============================================================================
+# !.gitkeep
+# !requirements.txt
+# !README.md
+# !database/Schema.sql
+# !database/setup.py
+# !test_audio/01_en_balance.mp3  # Keep test audio samples
