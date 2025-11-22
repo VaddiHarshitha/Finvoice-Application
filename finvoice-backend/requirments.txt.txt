@@ -1,0 +1,157 @@
+# Core FastAPI
+fastapi==0.115.5
+uvicorn[standard]==0.32.1
+python-multipart==0.0.18
+python-dotenv==1.0.1
+
+# Google Cloud Services
+google-cloud-speech==2.30.0
+google-cloud-texttospeech==2.19.0
+pydub==0.25.1
+
+# LangChain Stack - TESTED COMPATIBLE VERSIONS
+httpx==0.13.3
+langchain-core==0.1.52
+langchain==0.1.20
+langchain-google-genai==0.0.11
+langchain-community==0.0.38
+google-generativeai==0.4.1
+google-ai-generativelanguage==0.4.0
+
+# Translation
+googletrans==4.0.0rc1
+
+# Other dependencies
+tiktoken==0.5.2
+numpy==1.26.4
+
+# NEW: Audio processing
+pydub==0.25.1
+soundfile==0.12.1
+wave
+
+
+# Database & Caching
+psycopg2-binary==2.9.9
+redis==5.0.0
+
+# Authentication & Security
+cryptography==41.0.7
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+
+# FastAPI Utilities
+python-multipart==0.0.6
+
+# External Services
+twilio==8.10.0
+
+# Core FastAPI (if not installed)
+fastapi==0.109.0
+uvicorn[standard]==0.27.0
+python-dotenv==1.0.0
+
+# AI/ML
+google-generativeai==0.3.2
+google-cloud-speech==2.21.0
+google-cloud-texttospeech==2.14.1
+googletrans==4.0.0rc1
+
+
+
+# ============================================================================
+# FINVOICE BACKEND - COMPLETE REQUIREMENTS
+# Version: 5.0.0
+# Python: 3.9+
+# ============================================================================
+
+# ============================================================================
+# CORE FASTAPI FRAMEWORK
+# ============================================================================
+fastapi==0.115.5
+uvicorn[standard]==0.32.1
+python-multipart==0.0.18
+python-dotenv==1.0.1
+
+# ============================================================================
+# GOOGLE CLOUD SERVICES (Voice Processing)
+# ============================================================================
+google-cloud-speech==2.30.0
+google-cloud-texttospeech==2.19.0
+google-auth==2.29.0
+google-auth-oauthlib==1.2.0
+
+# ============================================================================
+# AI/ML - LANGCHAIN + GEMINI (Tested Compatible Versions)
+# ============================================================================
+langchain==0.1.20
+langchain-core==0.1.52
+langchain-google-genai==0.0.11
+langchain-community==0.0.38
+google-generativeai==0.4.1
+google-ai-generativelanguage==0.4.0
+
+# ============================================================================
+# AUDIO PROCESSING
+# ============================================================================
+pydub==0.25.1
+soundfile==0.12.1
+# Note: Also need FFmpeg installed separately (see setup instructions)
+
+# ============================================================================
+# DATABASE & CACHING
+# ============================================================================
+psycopg2-binary==2.9.9
+redis==5.0.0
+
+# ============================================================================
+# AUTHENTICATION & SECURITY
+# ============================================================================
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+bcrypt==4.1.2
+cryptography==42.0.5
+
+# ============================================================================
+# TRANSLATION
+# ============================================================================
+deep-translator==1.11.4
+googletrans==4.0.0rc1
+
+# ============================================================================
+# HTTP & NETWORKING
+# ============================================================================
+httpx==0.27.0
+requests==2.31.0
+
+# ============================================================================
+# UTILITIES
+# ============================================================================
+tiktoken==0.5.2
+numpy==1.26.4
+python-dateutil==2.8.2
+
+# ============================================================================
+# TESTING (Optional but Recommended)
+# ============================================================================
+pytest==8.1.1
+pytest-asyncio==0.23.5
+
+# ============================================================================
+# CORS & MIDDLEWARE
+# ============================================================================
+# Already included in fastapi, but listing for clarity
+# starlette (comes with FastAPI)
+
+# ============================================================================
+# NOTES:
+# ============================================================================
+# 1. Install PostgreSQL 13+ separately
+# 2. Install Redis 6+ separately
+# 3. Install FFmpeg for audio conversion:
+#    - Windows: https://ffmpeg.org/download.html
+#    - Mac: brew install ffmpeg
+#    - Linux: sudo apt-get install ffmpeg
+# 4. Requires google-credentials.json file
+# 5. Requires .env file with proper configuration
+# ============================================================================
