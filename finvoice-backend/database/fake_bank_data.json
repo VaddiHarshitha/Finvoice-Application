@@ -1,0 +1,114 @@
+{
+  "users": {
+    "user001": {
+      "user_id": "user001",
+      "name": "Rahul Sharma",
+      "email": "rahul@demo.com",
+      "phone": "+919876543210",
+      "pin": "1234",
+      "created_at": "2024-01-01"
+    }
+  },
+  "accounts": {
+    "user001": {
+      "account_number": "1234567890",
+      "account_type": "SAVINGS",
+      "balance": 75230.50,
+      "currency": "INR"
+    }
+  },
+  "beneficiaries": {
+    "user001": [
+      {
+        "nickname": "Mom",
+        "full_name": "Sunita Sharma",
+        "account_number": "9999888877",
+        "bank": "HDFC Bank"
+      },
+      {
+        "nickname": "Brother",
+        "full_name": "Rohan Sharma",
+        "account_number": "8888777766",
+        "bank": "ICICI Bank"
+      },
+      {
+        "nickname": "Dad",
+        "full_name": "Ramesh Sharma",
+        "account_number": "7777666655",
+        "bank": "State Bank of India"
+      },
+      {
+        "nickname": "Sister",
+        "full_name": "Priya Sharma",
+        "account_number": "6666555544",
+        "bank": "Axis Bank"
+      },
+      {
+        "nickname": "Friend",
+        "full_name": "Amit Kumar",
+        "account_number": "5555444433",
+        "bank": "HDFC Bank"
+      }
+    ]
+  },
+  "transactions": {
+    "user001": [
+      {
+        "transaction_id": "TXN001",
+        "date": "2024-11-18",
+        "type": "DEBIT",
+        "amount": 5000.00,
+        "to": "Mom",
+        "status": "SUCCESS"
+      },
+      {
+        "transaction_id": "TXN002",
+        "date": "2024-11-17",
+        "type": "DEBIT",
+        "amount": 3000.00,
+        "to": "Brother",
+        "status": "SUCCESS"
+      },
+      {
+        "transaction_id": "TXN003",
+        "date": "2024-11-16",
+        "type": "CREDIT",
+        "amount": 25000.00,
+        "to": "Salary Credit",
+        "status": "SUCCESS"
+      },
+      {
+        "transaction_id": "TXN004",
+        "date": "2024-11-15",
+        "type": "DEBIT",
+        "amount": 2000.00,
+        "to": "Dad",
+        "status": "SUCCESS"
+      },
+      {
+        "transaction_id": "TXN005",
+        "date": "2024-11-14",
+        "type": "DEBIT",
+        "amount": 1500.00,
+        "to": "Sister",
+        "status": "SUCCESS"
+      },
+      {
+        "transaction_id": "TXN006",
+        "date": "2024-11-13",
+        "type": "DEBIT",
+        "amount": 4000.00,
+        "to": "Friend",
+        "status": "SUCCESS"
+      },
+      {
+        "transaction_id": "TXN007",
+        "date": "2024-11-12",
+        "type": "CREDIT",
+        "amount": 10000.00,
+        "to": "Freelance Payment",
+        "status": "SUCCESS"
+      }
+    ]
+  }
+}
