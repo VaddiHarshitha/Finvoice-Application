@@ -1,9 +1,3 @@
-"""
-Banking Service
-Handles all banking operations using PostgreSQL database
-COMPLETE VERSION: Added Loans, Bill Payments, and Reminders
-"""
-
 import random
 import os
 from datetime import datetime
@@ -12,7 +6,6 @@ import psycopg2
 from dotenv import load_dotenv
 
 load_dotenv()
-
 
 class BankingService:
     def __init__(self):
@@ -36,10 +29,10 @@ class BankingService:
             cursor.close()
             conn.close()
             
-            print("✅ BankingService initialized (PostgreSQL)")
-            print(f"✅ Connected to database with {user_count} users")
+            print(" BankingService initialized (PostgreSQL)")
+            print(f" Connected to database with {user_count} users")
         except Exception as e:
-            print(f"❌ Database connection error: {e}")
+            print(f" Database connection error: {e}")
             raise
     
     
@@ -54,7 +47,7 @@ class BankingService:
         cursor = None
         
         try:
-            print(f"💰 Getting balance for user: {user_id}")
+            print(f" Getting balance for user: {user_id}")
             
             conn = self._get_connection()
             cursor = conn.cursor()
@@ -75,7 +68,7 @@ class BankingService:
             
             balance, account_type, currency, account_number = result
             
-            print(f"✅ Balance: ₹{balance:,.2f}")
+            print(f" Balance: ₹{balance:,.2f}")
             
             return {
                 "success": True,
@@ -86,7 +79,7 @@ class BankingService:
             }
             
         except Exception as e:
-            print(f"❌ Error getting balance: {str(e)}")
+            print(f" Error getting balance: {str(e)}")
             return {
                 "success": False,
                 "error": str(e)
@@ -96,8 +89,6 @@ class BankingService:
                 cursor.close()
             if conn:
                 conn.close()
-    
-    
     def transfer_money(
         self, 
         user_id: str, 
@@ -109,7 +100,7 @@ class BankingService:
         cursor = None
         
         try:
-            print(f"💸 Transfer: {user_id} → {recipient} (₹{amount})")
+            print(f" Transfer: {user_id} → {recipient} (₹{amount})")
             
             conn = self._get_connection()
             cursor = conn.cursor()
@@ -161,7 +152,7 @@ class BankingService:
             
             otp = str(random.randint(100000, 999999))
             
-            print(f"✅ Transfer initiated. OTP: {otp}")
+            print(f" Transfer initiated. OTP: {otp}")
             
             return {
                 "success": True,
@@ -174,7 +165,7 @@ class BankingService:
             }
             
         except Exception as e:
-            print(f"❌ Transfer error: {str(e)}")
+            print(f" Transfer error: {str(e)}")
             return {
                 "success": False,
                 "error": str(e)
@@ -196,7 +187,7 @@ class BankingService:
         cursor = None
         
         try:
-            print(f"📜 Getting transactions for user: {user_id}")
+            print(f" Getting transactions for user: {user_id}")
             
             conn = self._get_connection()
             cursor = conn.cursor()
@@ -232,7 +223,7 @@ class BankingService:
                     "description": row[7]
                 })
             
-            print(f"✅ Found {len(transactions)} transactions")
+            print(f" Found {len(transactions)} transactions")
             
             return {
                 "success": True,
@@ -241,7 +232,7 @@ class BankingService:
             }
             
         except Exception as e:
-            print(f"❌ Error getting transactions: {str(e)}")
+            print(f" Error getting transactions: {str(e)}")
             return {
                 "success": False,
                 "error": str(e)
@@ -251,8 +242,6 @@ class BankingService:
                 cursor.close()
             if conn:
                 conn.close()
-    
-    
     def get_user_info(self, user_id: str) -> Dict[str, Any]:
         """Get user information"""
         conn = None
@@ -261,7 +250,6 @@ class BankingService:
         try:
             conn = self._get_connection()
             cursor = conn.cursor()
-            
             cursor.execute("""
                 SELECT user_id, name, email, phone
                 FROM users
@@ -287,7 +275,7 @@ class BankingService:
                 }
                 
         except Exception as e:
-            print(f"❌ Error getting user info: {str(e)}")
+            print(f" Error getting user info: {str(e)}")
             return {
                 "success": False,
                 "error": str(e)
@@ -297,13 +285,10 @@ class BankingService:
                 cursor.close()
             if conn:
                 conn.close()
-    
-    
     def get_beneficiaries(self, user_id: str) -> List[Dict[str, Any]]:
         """Get list of beneficiaries for user"""
         conn = None
         cursor = None
-        
         try:
             conn = self._get_connection()
             cursor = conn.cursor()
@@ -331,19 +316,17 @@ class BankingService:
                     "ifsc": row[4]
                 })
             
-            print(f"✅ Found {len(beneficiaries)} beneficiaries for {user_id}")
+            print(f" Found {len(beneficiaries)} beneficiaries for {user_id}")
             return beneficiaries
             
         except Exception as e:
-            print(f"❌ Error getting beneficiaries: {str(e)}")
+            print(f" Error getting beneficiaries: {str(e)}")
             return []
         finally:
             if cursor:
                 cursor.close()
             if conn:
                 conn.close()
-    
-    
     def find_beneficiary(self, user_id: str, nickname: str) -> Dict[str, Any]:
         """Find a specific beneficiary by nickname"""
         conn = None
@@ -376,37 +359,29 @@ class BankingService:
                     "bank": row[3],
                     "ifsc": row[4]
                 }
-                print(f"✅ Found beneficiary: {beneficiary['full_name']}")
+                print(f" Found beneficiary: {beneficiary['full_name']}")
                 return beneficiary
             else:
-                print(f"❌ Beneficiary '{nickname}' not found")
+                print(f" Beneficiary '{nickname}' not found")
                 return None
             
         except Exception as e:
-            print(f"❌ Error finding beneficiary: {str(e)}")
+            print(f" Error finding beneficiary: {str(e)}")
             return None
         finally:
             if cursor:
                 cursor.close()
             if conn:
-                conn.close()
-    
-    
-    # =========================================
-    # NEW: LOAN METHODS
-    # =========================================
-    
+                conn.close()  
     def get_loan_info(self, user_id: str) -> Dict[str, Any]:
         """Get user's loan information"""
         conn = None
         cursor = None
         
         try:
-            print(f"🏦 Getting loan info for user: {user_id}")
-            
+            print(f" Getting loan info for user: {user_id}")
             conn = self._get_connection()
             cursor = conn.cursor()
-            
             cursor.execute("""
                 SELECT 
                     loan_type,
@@ -432,7 +407,7 @@ class BankingService:
                     "status": row[6]
                 })
             
-            print(f"✅ Found {len(loans)} active loan(s)")
+            print(f" Found {len(loans)} active loan(s)")
             
             return {
                 "success": True,
@@ -441,7 +416,7 @@ class BankingService:
             }
             
         except Exception as e:
-            print(f"❌ Error getting loan info: {str(e)}")
+            print(f" Error getting loan info: {str(e)}")
             return {
                 "success": True,  # Return success even if table doesn't exist
                 "loans": [],
@@ -452,25 +427,19 @@ class BankingService:
                 cursor.close()
             if conn:
                 conn.close()
-    
-    
     def get_loan_eligibility(self, user_id: str, loan_amount: float) -> Dict[str, Any]:
         """Check loan eligibility"""
         try:
-            print(f"💰 Checking loan eligibility for ₹{loan_amount:,.0f}")
-            
+            print(f" Checking loan eligibility for ₹{loan_amount:,.0f}")
             balance_result = self.get_balance(user_id)
-            
             if not balance_result['success']:
                 return {
                     "success": False,
                     "error": "Could not fetch account balance"
                 }
-            
             balance = balance_result['balance']
             max_eligible = balance * 10
             eligible = loan_amount <= max_eligible
-            
             if eligible:
                 interest_rate = 8.5
                 tenure_months = 60
@@ -479,8 +448,7 @@ class BankingService:
             else:
                 emi = None
             
-            print(f"✅ Eligibility: {'YES' if eligible else 'NO'}")
-            
+            print(f" Eligibility: {'YES' if eligible else 'NO'}")
             return {
                 "success": True,
                 "eligible": eligible,
@@ -493,17 +461,11 @@ class BankingService:
             }
             
         except Exception as e:
-            print(f"❌ Error checking eligibility: {str(e)}")
+            print(f" Error checking eligibility: {str(e)}")
             return {
                 "success": False,
                 "error": str(e)
             }
-    
-    
-    # =========================================
-    # NEW: BILL PAYMENT METHOD
-    # =========================================
-    
     def pay_bill(
         self,
         user_id: str,
@@ -515,9 +477,8 @@ class BankingService:
         """Pay utility bills"""
         conn = None
         cursor = None
-        
         try:
-            print(f"💡 Processing bill payment: {bill_type} - ₹{amount:,.0f}")
+            print(f" Processing bill payment: {bill_type} - ₹{amount:,.0f}")
             
             balance_result = self.get_balance(user_id)
             
@@ -561,7 +522,7 @@ class BankingService:
             
             conn.commit()
             
-            print(f"✅ Bill payment successful: {bill_ref}")
+            print(f" Bill payment successful: {bill_ref}")
             
             return {
                 "success": True,
@@ -573,7 +534,7 @@ class BankingService:
             }
             
         except Exception as e:
-            print(f"❌ Bill payment error: {str(e)}")
+            print(f" Bill payment error: {str(e)}")
             if conn:
                 conn.rollback()
             return {
@@ -585,11 +546,6 @@ class BankingService:
                 cursor.close()
             if conn:
                 conn.close()
-    
-    
-    # =========================================
-    # NEW: PAYMENT REMINDER METHODS
-    # =========================================
     
     def create_payment_reminder(
         self, 
@@ -604,8 +560,7 @@ class BankingService:
         cursor = None
         
         try:
-            print(f"⏰ Creating reminder: {reminder_type} - ₹{amount:,.0f}")
-            
+            print(f" Creating reminder: {reminder_type} - ₹{amount:,.0f}")
             conn = self._get_connection()
             cursor = conn.cursor()
             
@@ -621,7 +576,7 @@ class BankingService:
             
             conn.commit()
             
-            print(f"✅ Reminder created: {reminder_id}")
+            print(f" Reminder created: {reminder_id}")
             
             return {
                 "success": True,
@@ -630,7 +585,7 @@ class BankingService:
             }
             
         except Exception as e:
-            print(f"❌ Error creating reminder: {str(e)}")
+            print(f" Error creating reminder: {str(e)}")
             if conn:
                 conn.rollback()
             return {
@@ -644,15 +599,13 @@ class BankingService:
             if conn:
                 conn.close()
     
-    
     def get_upcoming_payments(self, user_id: str, days: int = 7) -> Dict[str, Any]:
         """Get upcoming payments in next X days"""
         conn = None
         cursor = None
         
         try:
-            print(f"📅 Getting upcoming payments for next {days} days")
-            
+            print(f" Getting upcoming payments for next {days} days")
             conn = self._get_connection()
             cursor = conn.cursor()
             
@@ -674,7 +627,7 @@ class BankingService:
                     "description": row[3]
                 })
             
-            print(f"✅ Found {len(reminders)} upcoming payment(s)")
+            print(f" Found {len(reminders)} upcoming payment(s)")
             
             return {
                 "success": True,
@@ -684,7 +637,7 @@ class BankingService:
             }
             
         except Exception as e:
-            print(f"❌ Error getting reminders: {str(e)}")
+            print(f" Error getting reminders: {str(e)}")
             return {
                 "success": True,  # Return success even if table doesn't exist
                 "upcoming_payments": [],
