@@ -1,7 +1,3 @@
-"""
-Redis Service for Session Management and OTP Storage
-"""
-
 import redis
 import json
 import os
@@ -24,16 +20,11 @@ class RedisService:
         # Test connection
         try:
             self.redis_client.ping()
-            print("✅ RedisService initialized")
+            print(" RedisService initialized")
             print(f"   - Connected to: {os.getenv('REDIS_HOST', 'localhost')}:{os.getenv('REDIS_PORT', '6379')}")
         except redis.ConnectionError:
-            print("❌ Redis connection failed. Make sure Redis is running.")
+            print(" Redis connection failed. Make sure Redis is running.")
             raise
-    
-    # =========================================
-    # SESSION MANAGEMENT
-    # =========================================
-    
     def create_session(
         self,
         user_id: str,
@@ -61,11 +52,11 @@ class RedisService:
                 json.dumps(session_data)
             )
             
-            print(f"✅ Session created: {session_key} (expires in {expiry_minutes}m)")
+            print(f" Session created: {session_key} (expires in {expiry_minutes}m)")
             return session_key
             
         except Exception as e:
-            print(f"❌ Error creating session: {e}")
+            print(f" Error creating session: {e}")
             return None
     
     def get_session(self, user_id: str) -> Optional[Dict[str, Any]]:
@@ -87,13 +78,12 @@ class RedisService:
             return None
             
         except Exception as e:
-            print(f"❌ Error getting session: {e}")
+            print(f" Error getting session: {e}")
             return None
     
     def delete_session(self, user_id: str) -> bool:
         """
         Delete user session (logout)
-        
         Args:
             user_id: User identifier
             
@@ -105,12 +95,12 @@ class RedisService:
             result = self.redis_client.delete(session_key)
             
             if result:
-                print(f"✅ Session deleted: {session_key}")
+                print(f" Session deleted: {session_key}")
                 return True
             return False
             
         except Exception as e:
-            print(f"❌ Error deleting session: {e}")
+            print(f" Error deleting session: {e}")
             return False
     
     def refresh_session(self, user_id: str, expiry_minutes: int = 15) -> bool:
@@ -129,17 +119,13 @@ class RedisService:
             result = self.redis_client.expire(session_key, timedelta(minutes=expiry_minutes))
             
             if result:
-                print(f"✅ Session refreshed: {session_key}")
+                print(f" Session refreshed: {session_key}")
                 return True
             return False
             
         except Exception as e:
-            print(f"❌ Error refreshing session: {e}")
+            print(f" Error refreshing session: {e}")
             return False
-    
-    # =========================================
-    # OTP MANAGEMENT
-    # =========================================
     
     def store_otp(
         self,
@@ -177,11 +163,11 @@ class RedisService:
                 json.dumps(otp_data)
             )
             
-            print(f"✅ OTP stored: {otp_key} (expires in {expiry_minutes}m)")
+            print(f" OTP stored: {otp_key} (expires in {expiry_minutes}m)")
             return True
             
         except Exception as e:
-            print(f"❌ Error storing OTP: {e}")
+            print(f" Error storing OTP: {e}")
             return False
     
     def verify_otp(
@@ -233,7 +219,7 @@ class RedisService:
             if otp_data["otp"] == otp:
                 # OTP correct - delete it
                 self.redis_client.delete(otp_key)
-                print(f"✅ OTP verified: {otp_key}")
+                print(f" OTP verified: {otp_key}")
                 return {
                     "valid": True,
                     "message": "OTP verified successfully",
@@ -251,7 +237,7 @@ class RedisService:
                 )
                 
                 attempts_left = max_attempts - otp_data["attempts"]
-                print(f"⚠️ Wrong OTP: {otp_key} ({attempts_left} attempts left)")
+                print(f" Wrong OTP: {otp_key} ({attempts_left} attempts left)")
                 
                 return {
                     "valid": False,
@@ -260,17 +246,12 @@ class RedisService:
                 }
             
         except Exception as e:
-            print(f"❌ Error verifying OTP: {e}")
+            print(f" Error verifying OTP: {e}")
             return {
                 "valid": False,
                 "message": "OTP verification failed",
                 "attempts_left": 0
             }
-    
-    # =========================================
-    # RATE LIMITING
-    # =========================================
-    
     def check_rate_limit(
         self,
         user_id: str,
@@ -318,7 +299,7 @@ class RedisService:
             if count >= max_requests:
                 # Rate limit exceeded
                 ttl = self.redis_client.ttl(rate_key)
-                print(f"⚠️ Rate limit exceeded: {rate_key}")
+                print(f" Rate limit exceeded: {rate_key}")
                 return {
                     "allowed": False,
                     "remaining": 0,
@@ -336,18 +317,14 @@ class RedisService:
             }
             
         except Exception as e:
-            print(f"❌ Error checking rate limit: {e}")
+            print(f" Error checking rate limit: {e}")
             # On error, allow request (fail open)
             return {
                 "allowed": True,
                 "remaining": max_requests,
                 "reset_in": window_minutes * 60
             }
-    
-    # =========================================
-    # TOKEN BLACKLIST
-    # =========================================
-    
+
     def blacklist_token(self, token: str, expiry_minutes: int = 1440) -> bool:
         """
         Blacklist JWT token (for logout/revoke)
@@ -368,11 +345,11 @@ class RedisService:
                 "1"
             )
             
-            print(f"✅ Token blacklisted: {token[:20]}...")
+            print(f" Token blacklisted: {token[:20]}...")
             return True
             
         except Exception as e:
-            print(f"❌ Error blacklisting token: {e}")
+            print(f" Error blacklisting token: {e}")
             return False
     
     def is_token_blacklisted(self, token: str) -> bool:
@@ -390,12 +367,8 @@ class RedisService:
             return self.redis_client.exists(token_key) > 0
             
         except Exception as e:
-            print(f"❌ Error checking token blacklist: {e}")
+            print(f" Error checking token blacklist: {e}")
             return False
-    
-    # =========================================
-    # UTILITY METHODS
-    # =========================================
     
     def get_all_active_sessions(self) -> int:
         """Get count of active sessions"""
@@ -403,7 +376,7 @@ class RedisService:
             keys = self.redis_client.keys("session:*")
             return len(keys)
         except Exception as e:
-            print(f"❌ Error getting active sessions: {e}")
+            print(f" Error getting active sessions: {e}")
             return 0
     
     def clear_user_data(self, user_id: str) -> bool:
@@ -430,9 +403,10 @@ class RedisService:
                 if keys:
                     deleted += self.redis_client.delete(*keys)
             
-            print(f"✅ Cleared {deleted} keys for user: {user_id}")
+            print(f" Cleared {deleted} keys for user: {user_id}")
             return True
             
         except Exception as e:
-            print(f"❌ Error clearing user data: {e}")
+            print(f" Error clearing user data: {e}")
+
             return False
