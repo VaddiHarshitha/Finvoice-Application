@@ -1,9 +1,3 @@
-"""
-FinVoice Backend API - COMPLETE PRODUCTION VERSION
-WITH ALL FEATURES: Loans, Bills, Reminders, Analytics, GDPR, Performance Monitoring
-Version: 5.0.0
-"""
-
 from auth.auth_manager import AuthManager, get_current_user, get_current_user_optional
 from fastapi import Depends, Header, Request
 from typing import Optional
@@ -68,11 +62,6 @@ AUDIO_CACHE_DIR.mkdir(parents=True, exist_ok=True)
 request_times = defaultdict(list)
 endpoint_calls = defaultdict(int)
 
-
-# ============================================================================
-# LIFESPAN CONTEXT MANAGER
-# ============================================================================
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """
@@ -84,34 +73,29 @@ async def lifespan(app: FastAPI):
     print("="*70)
     
     # Run initial cleanup
-    print("\n🗑️ Running initial cache cleanup...")
+    print("\n Running initial cache cleanup...")
     cleanup_result = cleanup_old_audio_files(hours=24)
     if cleanup_result.get('success'):
-        print(f"✅ Initial cleanup: {cleanup_result.get('deleted', 0)} files deleted")
+        print(f" Initial cleanup: {cleanup_result.get('deleted', 0)} files deleted")
         print(f"   Size freed: {cleanup_result.get('deleted_size_mb', 0)} MB")
     else:
-        print(f"⚠️ Initial cleanup failed: {cleanup_result.get('error', 'Unknown error')}")
+        print(f" Initial cleanup failed: {cleanup_result.get('error', 'Unknown error')}")
     
     # Start background cleanup task
-    print("🔄 Starting background cleanup task...")
+    print(" Starting background cleanup task...")
     cleanup_task = asyncio.create_task(cleanup_loop(interval_hours=24))
-    print("✅ Background cleanup task started (runs every 24h)")
+    print(" Background cleanup task started (runs every 24h)")
     
     print("\n" + "="*70)
-    print("✅ All services initialized and ready!")
+    print(" All services initialized and ready!")
     print("="*70 + "\n")
     
     yield  # Server runs here
     
-    # ========== SHUTDOWN ==========
-    print("\n🛑 Shutting down...")
+ 
+    print("\n Shutting down...")
     cleanup_task.cancel()
-    print("✅ Cleanup task stopped")
-
-
-# ============================================================================
-# INITIALIZE FASTAPI
-# ============================================================================
+    print(" Cleanup task stopped")
 
 app = FastAPI(
     title="FinVoice Backend API - Complete Production",
@@ -129,11 +113,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
-# ============================================================================
-# PERFORMANCE MONITORING MIDDLEWARE (FIXED)
-# ============================================================================
-
 @app.middleware("http")
 async def performance_middleware_handler(request: Request, call_next):
     """Track request performance and errors"""
@@ -148,7 +127,6 @@ async def performance_middleware_handler(request: Request, call_next):
         method = request.method
         status_code = response.status_code
         
-        # ✅ FIXED: Use instance instead of class
         performance_monitor.record_request(
             endpoint=endpoint,
             duration=duration,
@@ -201,12 +179,7 @@ async def performance_middleware_handler(request: Request, call_next):
         track_error(request.url.path, type(e).__name__)
         raise
 
-
-# ============================================================================
-# INITIALIZE SERVICES
-# ============================================================================
-
-print("\n🚀 Initializing services...")
+print("\n Initializing services...")
 voice_processor = VoiceProcessor()
 banking_service = BankingService()
 agentic_nlp = AgenticNLP(banking_service=banking_service)
@@ -218,18 +191,13 @@ try:
     
     from auth.auth_manager import set_redis_service
     set_redis_service(redis_service)
-    print("✅ Redis service connected to auth manager")
+    print(" Redis service connected to auth manager")
     
 except Exception as e:
-    print(f"⚠️ Redis not available: {e}")
+    print(f" Redis not available: {e}")
     redis_service = None
 
-print("✅ All services ready!\n")
-
-
-# ============================================================================
-# UTILITY FUNCTIONS
-# ============================================================================
+print(" All services ready!\n")
 
 def save_audio_to_cache(user_id: str, audio_base64: str) -> str:
     """Save audio to cache and return filename"""
@@ -254,7 +222,7 @@ def log_security_event(
         conn = psycopg2.connect(**DB_CONFIG)
         cursor = conn.cursor()
         
-        # ✅ FIX: Check if user exists first
+        #  FIX: Check if user exists first
         cursor.execute("""
             SELECT user_id FROM users WHERE user_id = %s
         """, (user_id,))
@@ -275,11 +243,9 @@ def log_security_event(
         cursor.close()
         conn.close()
         
-        print(f"🔒 Security event logged: {event_type} for {final_user_id}")
-        
+        print(f" Security event logged: {event_type} for {final_user_id}")
     except Exception as e:
-        print(f"❌ Failed to log security event: {e}")
-
+        print(f" Failed to log security event: {e}")
 
 def get_client_ip(request: Request) -> str:
     """Get client IP address from request"""
@@ -287,11 +253,6 @@ def get_client_ip(request: Request) -> str:
     if forwarded:
         return forwarded.split(",")[0]
     return request.client.host if request.client else "unknown"
-
-
-# ============================================================================
-# ROOT & HEALTH
-# ============================================================================
 
 @app.get("/")
 def root():
@@ -310,11 +271,11 @@ def root():
             "Auto Audio Cleanup (24h)",
             "Error Handling & Logging",
             "Performance Monitoring",
-            "🏦 Loan Management",
-            "💡 Bill Payments",
-            "⏰ Payment Reminders",
-            "📊 Analytics Dashboard",
-            "🔒 GDPR Compliance"
+            " Loan Management",
+            "Bill Payments",
+            "Payment Reminders",
+            " Analytics Dashboard",
+            "GDPR Compliance"
         ]
     }
 
@@ -338,11 +299,6 @@ def health_check():
         }
     }
 
-
-# ============================================================================
-# AUTHENTICATION ENDPOINTS
-# ============================================================================
-
 @app.post("/auth/login")
 async def login(
     request: Request,
@@ -351,7 +307,7 @@ async def login(
 ):
     """Login with rate limiting and security logging"""
     try:
-        print(f"\n🔐 Login attempt: {email}")
+        print(f"\n Login attempt: {email}")
         client_ip = get_client_ip(request)
         
         # Validate input
@@ -400,11 +356,9 @@ async def login(
                 "email": user['email']
             }
         )
-        
         refresh_token = AuthManager.create_refresh_token(
             user_id=user['user_id']
         )
-        
         # Create session in Redis
         if redis_service:
             redis_service.create_session(
@@ -416,8 +370,7 @@ async def login(
                     "ip_address": client_ip
                 },
                 expiry_minutes=15
-            )
-        
+            )      
         # Log successful login
         log_security_event(
             user_id=user['user_id'],
@@ -444,10 +397,8 @@ async def login(
         raise
     except Exception as e:
         raise handle_api_error(e, email, "/auth/login")
-
-    
 @app.post("/auth/refresh", 
-          summary="🔄 Refresh Access Token",
+          summary=" Refresh Access Token",
           tags=["Authentication"])
 async def refresh_token(
     refresh_token: str = Form(..., description="Refresh token from login")
@@ -456,27 +407,21 @@ async def refresh_token(
     try:
         if not refresh_token:
             raise ValidationError("Refresh token is required")
-        
         result = AuthManager.refresh_access_token(refresh_token)
-        
         log_info("Access token refreshed")
-        
         return {
             "success": True,
             "access_token": result["access_token"],
             "token_type": result["token_type"],
             "expires_in_minutes": result["expires_in_minutes"],
             "message": "Access token refreshed successfully"
-        }
-        
+        }       
     except ValidationError as e:
         raise handle_api_error(e, None, "/auth/refresh")
     except HTTPException:
         raise
     except Exception as e:
         raise handle_api_error(e, None, "/auth/refresh")
-
-
 @app.post("/auth/logout")
 async def logout(
     request: Request,
@@ -513,8 +458,6 @@ async def logout(
         
     except Exception as e:
         raise handle_api_error(e, current_user, "/auth/logout")
-
-
 @app.get("/auth/me")
 async def get_current_user_info(
     current_user: str = Depends(get_current_user)
@@ -530,12 +473,6 @@ async def get_current_user_info(
         
     except Exception as e:
         raise handle_api_error(e, current_user, "/auth/me")
-
-
-# ============================================================================
-# VOICE PROCESSING WITH COMPLETE OTP FLOW
-# ============================================================================
-
 @app.post("/api/voice/process")
 async def process_voice(
     request: Request,
@@ -549,7 +486,7 @@ async def process_voice(
     
     try:
         print("\n" + "="*70)
-        print("🤖 VOICE REQUEST WITH OTP FLOW")
+        print(" VOICE REQUEST WITH OTP FLOW")
         print("="*70)
         
         client_ip = get_client_ip(request)
@@ -959,13 +896,8 @@ async def verify_otp(
     except Exception as e:
         raise handle_api_error(e, current_user, "/api/transactions/verify-otp")
 
-
-# ============================================================================
-# LOAN ENDPOINTS 🏦 (NEW)
-# ============================================================================
-
 @app.get("/api/loans",
-         summary="🏦 Get User Loans",
+         summary=" Get User Loans",
          tags=["Loans"])
 async def get_user_loans(
     current_user: str = Depends(get_current_user)
@@ -992,7 +924,7 @@ async def get_user_loans(
 
 
 @app.post("/api/loans/eligibility",
-          summary="💰 Check Loan Eligibility",
+          summary=" Check Loan Eligibility",
           tags=["Loans"])
 async def check_loan_eligibility(
     current_user: str = Depends(get_current_user),
@@ -1043,14 +975,8 @@ async def check_loan_eligibility(
             "/api/loans/eligibility",
             context={"amount": amount}
         )
-
-
-# ============================================================================
-# BILL PAYMENT ENDPOINTS 💡 (NEW)
-# ============================================================================
-
 @app.post("/api/bills/pay",
-          summary="💡 Pay Utility Bill",
+          summary=" Pay Utility Bill",
           tags=["Bills"])
 async def pay_utility_bill(
     request: Request,
@@ -1154,13 +1080,8 @@ async def pay_utility_bill(
             }
         )
 
-
-# ============================================================================
-# PAYMENT REMINDER ENDPOINTS ⏰ (NEW)
-# ============================================================================
-
 @app.post("/api/reminders/create",
-          summary="⏰ Create Payment Reminder",
+          summary=" Create Payment Reminder",
           tags=["Reminders"])
 async def create_payment_reminder(
     current_user: str = Depends(get_current_user),
@@ -1251,7 +1172,7 @@ async def create_payment_reminder(
 
 
 @app.get("/api/reminders/upcoming",
-         summary="📅 Get Upcoming Payments",
+         summary=" Get Upcoming Payments",
          tags=["Reminders"])
 async def get_upcoming_payments(
     current_user: str = Depends(get_current_user),
@@ -1288,11 +1209,6 @@ async def get_upcoming_payments(
         raise handle_api_error(e, current_user, "/api/reminders/upcoming")
     except Exception as e:
         raise handle_api_error(e, current_user, "/api/reminders/upcoming")
-
-
-# ============================================================================
-# CONVERSATION & CHAT ENDPOINTS
-# ============================================================================
 
 @app.get("/api/conversations")
 async def get_conversations(
@@ -1383,13 +1299,8 @@ async def chat(
     except Exception as e:
         raise handle_api_error(e, current_user, "/api/chat", context={"message_length": len(message)})
 
-
-# ============================================================================
-# ANALYTICS ENDPOINTS 📊 (NEW)
-# ============================================================================
-
 @app.get("/api/analytics/dashboard",
-         summary="📊 Analytics Dashboard",
+         summary=" Analytics Dashboard",
          tags=["Analytics"])
 async def get_analytics_dashboard(days: int = 7):
     """Get comprehensive analytics dashboard"""
@@ -1406,13 +1317,8 @@ async def get_analytics_dashboard(days: int = 7):
     except Exception as e:
         raise HTTPException(500, str(e))
 
-
-# ============================================================================
-# GDPR ENDPOINTS 🔒 (NEW)
-# ============================================================================
-
 @app.post("/api/user/export-data",
-          summary="📦 Export User Data (GDPR)",
+          summary=" Export User Data (GDPR)",
           tags=["GDPR"])
 async def export_user_data(
     current_user: str = Depends(get_current_user)
@@ -1474,7 +1380,6 @@ async def export_user_data(
     except Exception as e:
         raise handle_api_error(e, current_user, "/api/user/export-data")
 
-
 @app.delete("/api/user/delete-account",
             summary="🗑️ Delete Account (GDPR)",
             tags=["GDPR"])
@@ -1519,11 +1424,6 @@ async def delete_user_account(
     except Exception as e:
         raise handle_api_error(e, current_user, "/api/user/delete-account")
 
-
-# ============================================================================
-# ADMIN & MONITORING ENDPOINTS
-# ============================================================================
-
 @app.get("/api/admin/error-stats",
          summary="📊 Error Statistics",
          tags=["Admin"])
@@ -1539,12 +1439,10 @@ async def get_error_statistics():
         }
         
     except Exception as e:
-        print(f"❌ Error getting stats: {e}")
+        print(f" Error getting stats: {e}")
         raise HTTPException(500, str(e))
-
-
 @app.get("/api/admin/logs",
-         summary="📋 Recent Logs",
+         summary=" Recent Logs",
          tags=["Admin"])
 async def get_recent_logs(lines: int = 50):
     """Get recent log entries"""
@@ -1568,8 +1466,6 @@ async def get_recent_logs(lines: int = 50):
         }
     except Exception as e:
         raise HTTPException(500, str(e))
-
-
 @app.post("/api/admin/cleanup-cache",
           summary="🗑️ Manual Cache Cleanup",
           tags=["Admin"])
@@ -1580,10 +1476,8 @@ async def manual_cleanup(hours: int = 24):
         return result
     except Exception as e:
         raise HTTPException(500, str(e))
-
-
 @app.get("/api/admin/cache-stats",
-         summary="📊 Cache Statistics",
+         summary=" Cache Statistics",
          tags=["Admin"])
 async def cache_statistics():
     """Get cache statistics"""
@@ -1597,20 +1491,14 @@ async def cache_statistics():
     except Exception as e:
         raise HTTPException(500, str(e))
 
-
-# ============================================================================
-# PERFORMANCE MONITORING ENDPOINTS (FIXED)
-# ============================================================================
-
 @app.get("/api/performance",
-         summary="📊 Performance Metrics",
+         summary=" Performance Metrics",
          tags=["Monitoring"])
 async def get_performance_metrics():
     """Get comprehensive API performance statistics"""
     try:
         all_stats = performance_monitor.get_all_stats()
         summary = performance_monitor.get_summary()
-        
         return {
             "success": True,
             "summary": summary,
@@ -1622,7 +1510,7 @@ async def get_performance_metrics():
 
 
 @app.get("/api/performance/summary",
-         summary="📈 Performance Summary",
+         summary=" Performance Summary",
          tags=["Monitoring"])
 async def get_performance_summary():
     """Get quick performance summary"""
@@ -1641,7 +1529,7 @@ async def get_performance_summary():
 
 
 @app.get("/api/performance/slow",
-         summary="⚠️ Slow Endpoints",
+         summary=" Slow Endpoints",
          tags=["Monitoring"])
 async def get_slow_endpoints(threshold: float = 1.0):
     """Get endpoints slower than threshold"""
@@ -1679,7 +1567,7 @@ async def get_error_endpoints(min_error_rate: float = 5.0):
 
 
 @app.get("/api/performance/popular",
-         summary="🔥 Most Used Endpoints",
+         summary=" Most Used Endpoints",
          tags=["Monitoring"])
 async def get_popular_endpoints(limit: int = 10):
     """Get most frequently called endpoints"""
@@ -1697,7 +1585,7 @@ async def get_popular_endpoints(limit: int = 10):
 
 
 @app.get("/api/performance/endpoint/{endpoint_path:path}",
-         summary="🔍 Endpoint Details",
+         summary=" Endpoint Details",
          tags=["Monitoring"])
 async def get_endpoint_performance(endpoint_path: str):
     """Get detailed performance stats for specific endpoint"""
@@ -1717,7 +1605,7 @@ async def get_endpoint_performance(endpoint_path: str):
 
 
 @app.post("/api/performance/reset",
-          summary="🔄 Reset Performance Stats",
+          summary=" Reset Performance Stats",
           tags=["Monitoring"])
 async def reset_performance_stats():
     """Reset all performance statistics"""
@@ -1733,11 +1621,6 @@ async def reset_performance_stats():
         }
     except Exception as e:
         raise HTTPException(500, str(e))
-
-
-# ============================================================================
-# OTHER ENDPOINTS
-# ============================================================================
 
 @app.get("/api/security/events")
 async def get_security_events(
@@ -1819,8 +1702,6 @@ async def get_languages():
             "mr": "Marathi"
         }
     }
-
-
 @app.get("/api/stats")
 async def get_stats():
     """Get statistics"""
@@ -1846,8 +1727,6 @@ async def get_stats():
         }
     except Exception as e:
         raise HTTPException(500, str(e))
-
-
 @app.get("/api/admin/sessions")
 async def get_active_sessions():
     """Get active sessions"""
@@ -1864,11 +1743,6 @@ async def get_active_sessions():
     except Exception as e:
         raise HTTPException(500, str(e))
 
-
-# ============================================================================
-# ERROR HANDLERS
-# ============================================================================
-
 @app.exception_handler(HTTPException)
 async def http_exception_handler(request, exc):
     """Custom error handler"""
@@ -1882,13 +1756,8 @@ async def http_exception_handler(request, exc):
         }
     )
 
-
-# ============================================================================
-# TESTING ENDPOINTS
-# ============================================================================
-
 @app.post("/test/encryption",
-          summary="🧪 Test Encryption",
+          summary=" Test Encryption",
           tags=["Testing"])
 async def test_encryption_endpoint(
     data: str = Form(..., description="Data to encrypt")
@@ -1911,33 +1780,27 @@ async def test_encryption_endpoint(
     except Exception as e:
         raise handle_api_error(e, None, "/test/encryption")
 
-
-# ============================================================================
-# MAIN
-# ============================================================================
-
 if __name__ == "__main__":
     import uvicorn
     
     print("\n" + "="*70)
-    print("🤖 FINVOICE v5.0.0 - COMPLETE PRODUCTION VERSION")
+    print(" FINVOICE v5.0.0 - COMPLETE PRODUCTION VERSION")
     print("="*70)
-    print("\n📍 Server: http://localhost:8000")
-    print("📄 Docs: http://localhost:8000/docs")
-    print("🗄️ Database: PostgreSQL")
-    print("🔴 Redis: localhost:6379")
-    print("🤖 AI: Gemini 2.0 Flash")
-    print("\n✨ Features:")
-    print("   • Voice Processing (10 languages)")
-    print("   • Complete OTP Flow")
-    print("   • 🏦 Loan Management")
-    print("   • 💡 Bill Payments")
-    print("   • ⏰ Payment Reminders")
-    print("   • 📊 Analytics Dashboard")
-    print("   • 🔒 GDPR Compliance")
-    print("   • Performance Monitoring")
-    print("   • Security Logging")
-    print("   • Auto Cleanup")
-    print("\n⏳ Press Ctrl+C to stop\n")
-    
+    print("\n Server: http://localhost:8000")
+    print(" Docs: http://localhost:8000/docs")
+    print(" Database: PostgreSQL")
+    print(" Redis: localhost:6379")
+    print("AI: Gemini 2.0 Flash")
+    print("\n Features:")
+    print("  Voice Processing (10 languages)")
+    print("  Complete OTP Flow")
+    print("  Loan Management")
+    print("  Bill Payments")
+    print("  Payment Reminders")
+    print("  Analytics Dashboard")
+    print("  GDPR Compliance")
+    print("  Performance Monitoring")
+    print("  Security Logging")
+    print("  Auto Cleanup")
+    print("\n Press Ctrl+C to stop\n")
     uvicorn.run(app, host="0.0.0.0", port=8000, log_level="info")
