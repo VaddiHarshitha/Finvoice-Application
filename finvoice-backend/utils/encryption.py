@@ -1,8 +1,3 @@
-"""
-AES-256 Encryption Utility for FinVoice
-Encrypts sensitive data at rest (voice signatures, account details, etc.)
-"""
-
 from cryptography.fernet import Fernet
 import os
 from dotenv import load_dotenv
@@ -10,21 +5,17 @@ import base64
 
 load_dotenv()
 
-# ============================================================================
-# ENCRYPTION KEY MANAGEMENT
-# ============================================================================
-
 ENCRYPTION_KEY = os.getenv("ENCRYPTION_KEY")
 
 if not ENCRYPTION_KEY:
     # Generate new key (do this ONCE and save to .env)
     new_key = Fernet.generate_key().decode()
     print("\n" + "="*70)
-    print("⚠️  NO ENCRYPTION KEY FOUND IN .env")
+    print("  NO ENCRYPTION KEY FOUND IN .env")
     print("="*70)
-    print(f"\n🔑 Generated new encryption key:")
+    print(f"\n Generated new encryption key:")
     print(f"\n{new_key}\n")
-    print("📝 Add this to your .env file:")
+    print(" Add this to your .env file:")
     print(f"\nENCRYPTION_KEY={new_key}\n")
     print("="*70 + "\n")
     ENCRYPTION_KEY = new_key
@@ -32,15 +23,10 @@ if not ENCRYPTION_KEY:
 # Initialize cipher
 try:
     cipher = Fernet(ENCRYPTION_KEY.encode() if isinstance(ENCRYPTION_KEY, str) else ENCRYPTION_KEY)
-    print("✅ Encryption service initialized (AES-256)")
+    print(" Encryption service initialized (AES-256)")
 except Exception as e:
-    print(f"❌ Failed to initialize encryption: {e}")
+    print(f" Failed to initialize encryption: {e}")
     raise
-
-
-# ============================================================================
-# ENCRYPTION FUNCTIONS
-# ============================================================================
 
 def encrypt_data(plain_text: str) -> str:
     """
@@ -69,10 +55,8 @@ def encrypt_data(plain_text: str) -> str:
         return encrypted_base64
         
     except Exception as e:
-        print(f"❌ Encryption error: {e}")
+        print(f" Encryption error: {e}")
         raise
-
-
 def decrypt_data(encrypted_text: str) -> str:
     """
     Decrypt data encrypted with encrypt_data()
@@ -101,14 +85,13 @@ def decrypt_data(encrypted_text: str) -> str:
         return decrypted_bytes.decode('utf-8')
         
     except Exception as e:
-        print(f"❌ Decryption error: {e}")
+        print(f" Decryption error: {e}")
         raise
 
 
 def encrypt_dict(data: dict) -> str:
     """
     Encrypt entire dictionary as JSON
-    
     Args:
         data: Dictionary to encrypt
         
@@ -118,8 +101,6 @@ def encrypt_dict(data: dict) -> str:
     import json
     json_str = json.dumps(data)
     return encrypt_data(json_str)
-
-
 def decrypt_dict(encrypted_text: str) -> dict:
     """
     Decrypt encrypted dictionary
@@ -134,11 +115,6 @@ def decrypt_dict(encrypted_text: str) -> dict:
     json_str = decrypt_data(encrypted_text)
     return json.loads(json_str)
 
-
-# ============================================================================
-# TESTING
-# ============================================================================
-
 def test_encryption():
     """Test encryption/decryption"""
     print("\n🧪 Testing Encryption...")
@@ -148,11 +124,11 @@ def test_encryption():
     encrypted = encrypt_data(original)
     decrypted = decrypt_data(encrypted)
     
-    print(f"\n1️⃣ String Encryption:")
+    print(f"\n1️ String Encryption:")
     print(f"   Original:  {original}")
     print(f"   Encrypted: {encrypted[:50]}...")
     print(f"   Decrypted: {decrypted}")
-    print(f"   ✅ Match: {original == decrypted}")
+    print(f"  Match: {original == decrypted}")
     
     # Test 2: Dictionary
     original_dict = {
@@ -163,20 +139,17 @@ def test_encryption():
     encrypted_dict = encrypt_dict(original_dict)
     decrypted_dict = decrypt_dict(encrypted_dict)
     
-    print(f"\n2️⃣ Dictionary Encryption:")
+    print(f"\n Dictionary Encryption:")
     print(f"   Original:  {original_dict}")
     print(f"   Encrypted: {encrypted_dict[:50]}...")
     print(f"   Decrypted: {decrypted_dict}")
-    print(f"   ✅ Match: {original_dict == decrypted_dict}")
+    print(f"    Match: {original_dict == decrypted_dict}")
     
     # Test 3: Empty string
     encrypted_empty = encrypt_data("")
     decrypted_empty = decrypt_data(encrypted_empty)
-    print(f"\n3️⃣ Empty String:")
-    print(f"   ✅ Handles empty: {encrypted_empty == '' and decrypted_empty == ''}")
-    
-    print("\n✅ All encryption tests passed!\n")
-
-
+    print(f"\n Empty String:")
+    print(f"  Handles empty: {encrypted_empty == '' and decrypted_empty == ''}")    
+    print("\n All encryption tests passed!\n")
 if __name__ == "__main__":
     test_encryption()
