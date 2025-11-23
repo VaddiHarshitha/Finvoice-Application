@@ -1,8 +1,3 @@
-"""
-Conversation History Service
-Stores and retrieves voice session logs
-"""
-
 import psycopg2
 from datetime import datetime
 from typing import Dict, List, Optional
@@ -21,7 +16,7 @@ class ConversationService:
             "password": os.getenv("DB_PASSWORD", "your_password"),
             "database": os.getenv("DB_NAME", "finvoice_db")
         }
-        print("✅ ConversationService initialized")
+        print(" ConversationService initialized")
     
     def _get_connection(self):
         """Get database connection"""
@@ -75,11 +70,11 @@ class ConversationService:
             session_id = cursor.fetchone()[0]
             conn.commit()
             
-            print(f"💾 Saved voice session: {session_id}")
+            print(f" Saved voice session: {session_id}")
             return session_id
             
         except Exception as e:
-            print(f"❌ Error saving voice session: {e}")
+            print(f" Error saving voice session: {e}")
             if conn:
                 conn.rollback()
             return -1
@@ -88,7 +83,6 @@ class ConversationService:
                 cursor.close()
             if conn:
                 conn.close()
-    
     def save_conversation_turn(
         self,
         user_id: str,
@@ -99,20 +93,17 @@ class ConversationService:
     ) -> bool:
         """
         Save individual conversation turn
-        
         Args:
             user_id: User identifier
             session_id: Voice session ID
             role: 'user' or 'assistant'
             message: Message text
             language: Language code
-            
         Returns:
             bool: Success status
         """
         conn = None
-        cursor = None
-        
+        cursor = None   
         try:
             conn = self._get_connection()
             cursor = conn.cursor()
@@ -188,7 +179,7 @@ class ConversationService:
             return conversations
             
         except Exception as e:
-            print(f"❌ Error getting conversations: {e}")
+            print(f" Error getting conversations: {e}")
             return []
         finally:
             if cursor:
@@ -257,7 +248,7 @@ class ConversationService:
             }
             
         except Exception as e:
-            print(f"❌ Error getting conversation: {e}")
+            print(f" Error getting conversation: {e}")
             return {"error": str(e)}
         finally:
             if cursor:
