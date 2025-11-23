@@ -1,8 +1,3 @@
-"""
-Performance Monitoring Service
-Tracks API performance, identifies bottlenecks, and provides insights
-"""
-
 from collections import defaultdict
 from datetime import datetime, timedelta
 from typing import Dict, List, Any
@@ -22,7 +17,7 @@ class PerformanceMonitor:
         self.status_codes = defaultdict(lambda: defaultdict(int))
         self.hourly_stats = defaultdict(lambda: {"requests": 0, "avg_time": 0})
         
-        print("✅ PerformanceMonitor initialized")
+        print(" PerformanceMonitor initialized")
     
     def record_request(
         self,
@@ -118,10 +113,8 @@ class PerformanceMonitor:
     def get_error_prone_endpoints(self, min_error_rate: float = 5.0) -> List[Dict[str, Any]]:
         """
         Get endpoints with high error rates
-        
         Args:
             min_error_rate: Minimum error rate percentage
-            
         Returns:
             List of error-prone endpoints
         """
@@ -135,7 +128,7 @@ class PerformanceMonitor:
                     "error_rate": error_rate,
                     "errors": stats['errors'],
                     "total_calls": stats['total_calls'],
-                    "warning": "🚨 HIGH ERROR RATE"
+                    "warning": "HIGH ERROR RATE"
                 })
         
         return sorted(error_endpoints, key=lambda x: x['error_rate'], reverse=True)
@@ -182,32 +175,32 @@ class PerformanceMonitor:
         slow = self.get_slow_endpoints(threshold=1.0)
         if slow:
             recommendations.append(
-                f"⚠️ {len(slow)} endpoints are slower than 1 second. Consider optimization."
+                f" {len(slow)} endpoints are slower than 1 second. Consider optimization."
             )
         
         # Check for error-prone endpoints
         errors = self.get_error_prone_endpoints(min_error_rate=5.0)
         if errors:
             recommendations.append(
-                f"🚨 {len(errors)} endpoints have error rates above 5%. Review error handling."
+                f" {len(errors)} endpoints have error rates above 5%. Review error handling."
             )
         
         # Check overall performance
         summary = self.get_summary()
         if summary['avg_response_time'] > 0.5:
             recommendations.append(
-                "📊 Average response time is above 500ms. Consider caching or optimization."
+                " Average response time is above 500ms. Consider caching or optimization."
             )
         
         # Check for unbalanced load
         most_used = self.get_most_used_endpoints(limit=3)
         if most_used and most_used[0]['percentage'] > 50:
             recommendations.append(
-                f"⚖️ Endpoint '{most_used[0]['endpoint']}' handles {most_used[0]['percentage']}% of traffic. Consider load balancing."
+                f" Endpoint '{most_used[0]['endpoint']}' handles {most_used[0]['percentage']}% of traffic. Consider load balancing."
             )
         
         if not recommendations:
-            recommendations.append("✅ All systems performing well!")
+            recommendations.append(" All systems performing well!")
         
         return recommendations
     
@@ -217,8 +210,6 @@ class PerformanceMonitor:
         self.endpoint_calls = defaultdict(int)
         self.error_counts = defaultdict(int)
         self.status_codes = defaultdict(lambda: defaultdict(int))
-        print("🔄 Performance stats reset")
-
-
+        print(" Performance stats reset")
 # Global instance
 performance_monitor = PerformanceMonitor()
