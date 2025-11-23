@@ -1,9 +1,3 @@
-"""
-Voice Processing Service
-Handles Speech-to-Text and Text-to-Speech using Google Cloud
-WITH MP3 to WAV CONVERSION
-"""
-
 import os
 from google.cloud import speech_v1
 from google.cloud import texttospeech_v1
@@ -30,13 +24,8 @@ class VoiceProcessor:
         self.speech_client = speech_v1.SpeechClient(credentials=self.credentials)
         self.tts_client = texttospeech_v1.TextToSpeechClient(credentials=self.credentials)
         
-        print("✅ VoiceProcessor initialized")
-        print(f"✅ Connected to project: {self.credentials.project_id}")
-    
-    
-    # =========================================
-    # SPEECH-TO-TEXT METHODS
-    # =========================================
+        print(" VoiceProcessor initialized")
+        print(f" Connected to project: {self.credentials.project_id}")
     
     def transcribe_audio(
         self, 
@@ -62,7 +51,7 @@ class VoiceProcessor:
             }
         """
         try:
-            print(f"🎤 Transcribing audio (language: {language_code})...")
+            print(f" Transcribing audio (language: {language_code})...")
             
             # CONVERT MP3 TO WAV IF NEEDED
             audio_content, actual_sample_rate = self._convert_to_wav(audio_content)
@@ -122,8 +111,8 @@ class VoiceProcessor:
             text = alternative.transcript
             confidence = alternative.confidence
             
-            print(f"✅ Transcribed: '{text}'")
-            print(f"✅ Confidence: {confidence * 100:.1f}%")
+            print(f" Transcribed: '{text}'")
+            print(f" Confidence: {confidence * 100:.1f}%")
             
             return {
                 "success": True,
@@ -131,10 +120,9 @@ class VoiceProcessor:
                 "confidence": confidence,
                 "language": language_code
             }
-            
         except Exception as e:
             error_msg = str(e)
-            print(f"❌ Transcription error: {error_msg}")
+            print(f" Transcription error: {error_msg}")
             
             return {
                 "success": False,
@@ -142,8 +130,6 @@ class VoiceProcessor:
                 "confidence": 0.0,
                 "error": error_msg
             }
-    
-    
     def _convert_to_wav(self, audio_content: bytes) -> tuple:
         """
         Convert MP3/other formats to WAV (LINEAR16) for Google STT
@@ -157,23 +143,23 @@ class VoiceProcessor:
         try:
             # Check if already WAV format
             if audio_content[:4] == b'RIFF' and audio_content[8:12] == b'WAVE':
-                print("   ✅ Audio is already in WAV format")
+                print("    Audio is already in WAV format")
                 
                 # Extract sample rate from WAV header
                 try:
                     sample_rate = int.from_bytes(audio_content[24:28], 'little')
-                    print(f"   ✅ Detected sample rate: {sample_rate} Hz")
+                    print(f"  Detected sample rate: {sample_rate} Hz")
                     return audio_content, sample_rate
                 except:
                     return audio_content, 16000  # Default to 16kHz
             
             # Need to convert - use pydub
-            print("   🔄 Converting audio to WAV format...")
+            print("   Converting audio to WAV format...")
             
             try:
                 from pydub import AudioSegment
             except ImportError:
-                print("   ❌ pydub not installed. Installing now...")
+                print("  pydub not installed. Installing now...")
                 import subprocess
                 subprocess.check_call(['pip', 'install', 'pydub'])
                 from pydub import AudioSegment
@@ -181,11 +167,11 @@ class VoiceProcessor:
             # Detect format and load
             if audio_content[:3] == b'ID3' or audio_content[:2] == b'\xff\xfb' or audio_content[:2] == b'\xff\xf3':
                 # MP3 format
-                print("   📦 Detected MP3 format")
+                print("   Detected MP3 format")
                 audio = AudioSegment.from_mp3(io.BytesIO(audio_content))
             else:
                 # Try automatic detection
-                print("   📦 Auto-detecting format...")
+                print("   Auto-detecting format...")
                 audio = AudioSegment.from_file(io.BytesIO(audio_content))
             
             # Convert to LINEAR16 WAV (16kHz, mono, 16-bit)
@@ -198,25 +184,20 @@ class VoiceProcessor:
             audio.export(wav_io, format='wav')
             wav_bytes = wav_io.getvalue()
             
-            print(f"   ✅ Converted to WAV: {len(wav_bytes):,} bytes (16kHz, mono, 16-bit)")
+            print(f"   Converted to WAV: {len(wav_bytes):,} bytes (16kHz, mono, 16-bit)")
             return wav_bytes, 16000
             
         except ImportError as e:
-            print(f"   ❌ Missing dependency: {e}")
-            print("   💡 Install: pip install pydub")
-            print("   💡 And FFmpeg: https://ffmpeg.org/download.html")
+            print(f"   Missing dependency: {e}")
+            print("    Install: pip install pydub")
+            print("    And FFmpeg: https://ffmpeg.org/download.html")
             return None, None
             
         except Exception as e:
-            print(f"   ❌ Audio conversion failed: {e}")
+            print(f"  Audio conversion failed: {e}")
             import traceback
             traceback.print_exc()
             return None, None
-    
-    
-    # =========================================
-    # TEXT-TO-SPEECH METHODS
-    # =========================================
     
     def synthesize_speech(
         self,
@@ -298,7 +279,7 @@ class VoiceProcessor:
                     # Encode audio to base64
                     audio_base64 = base64.b64encode(response.audio_content).decode('utf-8')
                     
-                    print(f"✅ Speech synthesized (voice: {voice_name}, format: {output_format})")
+                    print(f" Speech synthesized (voice: {voice_name}, format: {output_format})")
                     
                     return {
                         "success": True,
@@ -323,11 +304,6 @@ class VoiceProcessor:
                 "audio_base64": "",
                 "error": error_msg
             }
-    
-    
-    # =========================================
-    # HELPER METHODS
-    # =========================================
     
     def get_supported_languages(self) -> dict:
         """Get list of supported languages"""
