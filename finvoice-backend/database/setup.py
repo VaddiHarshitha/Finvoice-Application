@@ -1,6 +1,3 @@
-"""
-Database setup and initialization - COMPLETE VERSION WITH SMART PATHS
-"""
 import psycopg2
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 import os
@@ -28,8 +25,6 @@ def hash_password(password: str) -> str:
 def get_file_path(filename):
     """
     Smart path resolution - works whether script is run from:
-    - project root: python database/setup.py
-    - database folder: python setup.py
     """
     script_dir = os.path.dirname(os.path.abspath(__file__))
     
@@ -64,14 +59,14 @@ def create_database():
         cursor = conn.cursor()
         
         cursor.execute(f"CREATE DATABASE {DB_CONFIG['database']}")
-        print(f"✅ Database '{DB_CONFIG['database']}' created")
+        print(f" Database '{DB_CONFIG['database']}' created")
         
         cursor.close()
         conn.close()
     except psycopg2.errors.DuplicateDatabase:
-        print(f"ℹ️  Database '{DB_CONFIG['database']}' already exists")
+        print(f"  Database '{DB_CONFIG['database']}' already exists")
     except Exception as e:
-        print(f"❌ Error creating database: {e}")
+        print(f" Error creating database: {e}")
 
 def create_tables(drop_existing=False):
     """Create all tables from schema.sql"""
@@ -80,7 +75,7 @@ def create_tables(drop_existing=False):
         cursor = conn.cursor()
         
         if drop_existing:
-            print("🗑️  Dropping existing tables...")
+            print("  Dropping existing tables...")
             cursor.execute("""
                 DROP TABLE IF EXISTS payment_reminders CASCADE;
                 DROP TABLE IF EXISTS loans CASCADE;
@@ -95,7 +90,7 @@ def create_tables(drop_existing=False):
                 DROP TABLE IF EXISTS users CASCADE;
             """)
             conn.commit()
-            print("✅ Existing tables dropped")
+            print(" Existing tables dropped")
         
         # Smart schema file detection
         schema_files = ['Schema.sql', 'schema.sql']
@@ -121,7 +116,7 @@ def create_tables(drop_existing=False):
         cursor.execute(schema)
         conn.commit()
         
-        print("✅ All tables created successfully")
+        print("All tables created successfully")
         
         # Verify tables
         cursor.execute("""
@@ -132,7 +127,7 @@ def create_tables(drop_existing=False):
         """)
         
         tables = [row[0] for row in cursor.fetchall()]
-        print(f"\n📋 Created {len(tables)} tables:")
+        print(f"\n Created {len(tables)} tables:")
         for table in tables:
             print(f"   ✓ {table}")
         
@@ -140,12 +135,12 @@ def create_tables(drop_existing=False):
         conn.close()
         
     except Exception as e:
-        print(f"❌ Error creating tables: {e}")
+        print(f" Error creating tables: {e}")
         import traceback
         traceback.print_exc()
 
 def seed_complete_data():
-    """Insert complete bulk data from JSON WITH UNIQUE PASSWORDS & PINS"""
+"""Insert complete bulk data from JSON WITH UNIQUE PASSWORDS & PINS"""
     try:
         # Smart data file detection
         data_files = [
@@ -161,15 +156,15 @@ def seed_complete_data():
                 break
         
         if not data_file:
-            print(f"❌ Data file not found! Tried:")
+            print(f" Data file not found! Tried:")
             for df in data_files:
                 script_dir = os.path.dirname(os.path.abspath(__file__))
                 print(f"   - {os.path.join(script_dir, df)}")
-            print("\n💡 Generate data first:")
+            print("\n Generate data first:")
             print("   python generate_complete_bulk_data.py")
             return
         
-        print(f"📄 Loading data from: {data_file}")
+        print(f" Loading data from: {data_file}")
         
         with open(data_file, 'r', encoding='utf-8') as f:
             data = json.load(f)
@@ -177,9 +172,9 @@ def seed_complete_data():
         conn = psycopg2.connect(**DB_CONFIG)
         cursor = conn.cursor()
         
-        print("\n📊 Inserting data...")
+        print("\n Inserting data...")
         
-        # ✅ 1. INSERT USERS WITH UNIQUE PASSWORDS & PINS
+        # 1. INSERT USERS WITH UNIQUE PASSWORDS & PINS
         user_count = len(data['users'])
         print(f"👥 Inserting {user_count} users...")
         
@@ -187,14 +182,14 @@ def seed_complete_data():
         unique_pin_count = 0
         
         for user_id, user_data in data['users'].items():
-            # ✅ Use plain password from JSON if available
+            #  Use plain password from JSON if available
             if 'password_plain' in user_data and user_data['password_plain']:
                 password_hash = hash_password(user_data['password_plain'])
                 unique_password_count += 1
             else:
                 password_hash = hash_password("demo123")  # Fallback
             
-            # ✅ Use unique PIN from JSON
+            #  Use unique PIN from JSON
             pin = user_data.get('pin', '1234')
             pin_hash = hash_password(pin)
             if pin != '1234':
@@ -213,15 +208,15 @@ def seed_complete_data():
                   user_data['phone'], password_hash, pin_hash))
         
         conn.commit()
-        print(f"   ✅ {user_count} users inserted")
-        print(f"   🔐 {unique_password_count} users have unique passwords")
-        print(f"   🔐 {unique_pin_count} users have unique PINs")
+        print(f"    {user_count} users inserted")
+        print(f"    {unique_password_count} users have unique passwords")
+        print(f"    {unique_pin_count} users have unique PINs")
         if user_count - unique_password_count > 0:
-            print(f"   ⚠️  {user_count - unique_password_count} users have default password 'demo123'")
+            print(f"  {user_count - unique_password_count} users have default password 'demo123'")
         
         # 2. INSERT ACCOUNTS
         account_count = len(data['accounts'])
-        print(f"💳 Inserting {account_count} accounts...")
+        print(f" Inserting {account_count} accounts...")
         
         for user_id, account_data in data['accounts'].items():
             has_loan = account_data.get('has_loan', False)
@@ -239,11 +234,11 @@ def seed_complete_data():
                   account_data['balance'], account_data['currency'], True, has_loan))
         
         conn.commit()
-        print(f"   ✅ {account_count} accounts inserted")
+        print(f"  {account_count} accounts inserted")
         
         # 3. INSERT BENEFICIARIES
         total_beneficiaries = sum(len(b) for b in data['beneficiaries'].values())
-        print(f"👨‍👩‍👧‍👦 Inserting {total_beneficiaries} beneficiaries...")
+        print(f" Inserting {total_beneficiaries} beneficiaries...")
         
         for user_id, beneficiaries in data['beneficiaries'].items():
             for ben in beneficiaries:
@@ -258,11 +253,11 @@ def seed_complete_data():
                       ben.get('ifsc', 'SBIN0000000')))
         
         conn.commit()
-        print(f"   ✅ {total_beneficiaries} beneficiaries inserted")
+        print(f"   {total_beneficiaries} beneficiaries inserted")
         
         # 4. INSERT TRANSACTIONS
         total_transactions = sum(len(t) for t in data['transactions'].values())
-        print(f"💸 Inserting {total_transactions} transactions...")
+        print(f" Inserting {total_transactions} transactions...")
         
         for user_id, transactions in data['transactions'].items():
             for txn in transactions:
@@ -279,12 +274,12 @@ def seed_complete_data():
                       txn['status'], txn['date']))
         
         conn.commit()
-        print(f"   ✅ {total_transactions} transactions inserted")
+        print(f"   {total_transactions} transactions inserted")
         
         # 5. INSERT LOANS
         if 'loans' in data and data['loans']:
             loan_count = len(data['loans'])
-            print(f"🏦 Inserting {loan_count} loans...")
+            print(f" Inserting {loan_count} loans...")
             
             for user_id, loan in data['loans'].items():
                 loan_id = f"LOAN{user_id}"
@@ -303,14 +298,14 @@ def seed_complete_data():
                       loan['next_due_date'], loan.get('disbursed_at', 'now')))
             
             conn.commit()
-            print(f"   ✅ {loan_count} loans inserted")
+            print(f"   {loan_count} loans inserted")
         else:
-            print("⚠️  No loan data found in JSON")
+            print("  No loan data found in JSON")
         
         # 6. INSERT REMINDERS
         if 'reminders' in data and data['reminders']:
             total_reminders = sum(len(r) for r in data['reminders'].values() if r)
-            print(f"⏰ Inserting {total_reminders} reminders...")
+            print(f" Inserting {total_reminders} reminders...")
             
             reminder_count = 0
             for user_id, reminders in data['reminders'].items():
@@ -330,24 +325,24 @@ def seed_complete_data():
                           reminder['amount'], reminder['due_date'], reminder['description']))
             
             conn.commit()
-            print(f"   ✅ {total_reminders} reminders inserted")
+            print(f"  {total_reminders} reminders inserted")
         else:
-            print("⚠️  No reminder data found in JSON")
+            print("  No reminder data found in JSON")
         
         cursor.close()
         conn.close()
         
         print("\n" + "="*70)
-        print("✅ ALL DATA SEEDED SUCCESSFULLY!")
+        print(" ALL DATA SEEDED SUCCESSFULLY!")
         print("="*70)
         
         # Get credentials info
         cred_file = get_file_path('user_credentials.txt')
         
         if cred_file:
-            print("\n📝 Login Credentials:")
-            print(f"   📄 Full list: {cred_file}")
-            print("\n   Quick Test Logins:")
+            print("\n Login Credentials:")
+            print(f"  Full list: {cred_file}")
+            print("\n  Quick Test Logins:")
             
             # Try to show first 3 users
             try:
@@ -374,24 +369,24 @@ def seed_complete_data():
             except:
                 print("   - Email: rahul.sharma1@demo.com        Password: demo123")
         else:
-            print("\n📝 Default Login Credentials:")
+            print("\n Default Login Credentials:")
             print("   Email: rahul.sharma1@demo.com")
             print("   Password: demo123")
             print("   PIN: 1234")
         
         print("\n💡 Security Features:")
-        print("   ✅ Each user has UNIQUE password")
-        print("   ✅ Each user has UNIQUE PIN")
-        print("   ✅ All passwords are bcrypt hashed")
-        print("   ✅ First 3 users use 'demo123' for easy testing")
+        print("  Each user has UNIQUE password")
+        print("  Each user has UNIQUE PIN")
+        print("  All passwords are bcrypt hashed")
+        print("  First 3 users use 'demo123' for easy testing")
         
     except Exception as e:
-        print(f"❌ Error seeding data: {e}")
+        print(f" Error seeding data: {e}")
         import traceback
         traceback.print_exc()
 
 if __name__ == "__main__":
-    print("\n🗄️  FINVOICE DATABASE SETUP - COMPLETE VERSION")
+    print("\n  FINVOICE DATABASE SETUP - COMPLETE VERSION")
     print("="*70)
     print(f"Working directory: {os.getcwd()}")
     print(f"Script location: {os.path.dirname(os.path.abspath(__file__))}")
@@ -399,10 +394,8 @@ if __name__ == "__main__":
     reset = '--reset' in sys.argv or '-r' in sys.argv
     
     if reset:
-        print("⚠️  RESET MODE: Dropping all existing tables")
+        print("  RESET MODE: Dropping all existing tables")
     
     create_database()
     create_tables(drop_existing=reset)
     seed_complete_data()
-    
-    print("\n✅ Setup complete!")
