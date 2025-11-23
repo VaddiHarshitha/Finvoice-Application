@@ -1,9 +1,3 @@
-"""
-JWT Authentication Manager for FinVoice
-NOW WITH REFRESH TOKEN MECHANISM
-Handles user authentication, token generation, and password hashing
-"""
-
 from jose import jwt, JWTError
 from datetime import datetime, timedelta
 import os
@@ -16,13 +10,10 @@ import psycopg2
 
 load_dotenv()
 
-# ============================================================================
-# CONFIGURATION
-# ============================================================================
-SECRET_KEY = os.getenv("JWT_SECRET_KEY", "your-secret-key-change-this")
+SECRET_KEY = os.getenv("JWT_SECRET_KEY", "secret-key")
 ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
-ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("JWT_EXPIRATION_MINUTES", "15"))  # Changed to 15 min
-REFRESH_TOKEN_EXPIRE_DAYS = int(os.getenv("JWT_REFRESH_EXPIRATION_DAYS", "7"))  # NEW: 7 days
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("JWT_EXPIRATION_MINUTES", "15")) 
+REFRESH_TOKEN_EXPIRE_DAYS = int(os.getenv("JWT_REFRESH_EXPIRATION_DAYS", "7"))  
 
 # Database configuration
 DB_CONFIG = {
@@ -36,24 +27,20 @@ DB_CONFIG = {
 # Security scheme
 security = HTTPBearer()
 
-# Global Redis service instance (will be set by main.py)
+# Global Redis service instance 
 _redis_service = None
 
 def set_redis_service(redis_service):
     """Set the global Redis service instance"""
     global _redis_service
     _redis_service = redis_service
-    print("✅ Redis service registered in auth manager")
+    print(" Redis service registered in auth manager")
 
-print(f"✅ Auth Manager initialized (PostgreSQL)")
+print(f" Auth Manager initialized (PostgreSQL)")
 print(f"   - Access Token Expiration: {ACCESS_TOKEN_EXPIRE_MINUTES} minutes")
 print(f"   - Refresh Token Expiration: {REFRESH_TOKEN_EXPIRE_DAYS} days")
 print(f"   - Database: {DB_CONFIG['database']} @ {DB_CONFIG['host']}")
 
-
-# ============================================================================
-# AUTHENTICATION MANAGER CLASS
-# ============================================================================
 
 class AuthManager:
     """
@@ -105,7 +92,7 @@ class AuthManager:
         Returns:
             JWT token string
         """
-        # Calculate expiration time
+        # expiration time
         expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
         
         # Base payload
@@ -116,14 +103,13 @@ class AuthManager:
             "type": "access"           # Token type (NEW)
         }
         
-        # Add additional claims if provided
         if additional_claims:
             to_encode.update(additional_claims)
         
         # Encode and return token
         encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
         
-        print(f"🔑 Access token created for user: {user_id} (expires in {ACCESS_TOKEN_EXPIRE_MINUTES}m)")
+        print(f" Access token created for user: {user_id} (expires in {ACCESS_TOKEN_EXPIRE_MINUTES}m)")
         return encoded_jwt
     
     
@@ -152,7 +138,7 @@ class AuthManager:
         # Encode and return token
         encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
         
-        print(f"🔄 Refresh token created for user: {user_id} (expires in {REFRESH_TOKEN_EXPIRE_DAYS} days)")
+        print(f" Refresh token created for user: {user_id} (expires in {REFRESH_TOKEN_EXPIRE_DAYS} days)")
         return encoded_jwt
     
     
@@ -202,7 +188,7 @@ class AuthManager:
             )
             
         except JWTError as e:
-            print(f"❌ Token verification failed: {e}")
+            print(f" Token verification failed: {e}")
             raise HTTPException(
                 status_code=401,
                 detail=f"Could not validate credentials: {str(e)}"
@@ -222,9 +208,6 @@ class AuthManager:
                 "access_token": str,
                 "token_type": str
             }
-            
-        Raises:
-            HTTPException: If refresh token is invalid or blacklisted
         """
         try:
             # Verify refresh token
@@ -234,7 +217,7 @@ class AuthManager:
             global _redis_service
             if _redis_service:
                 if _redis_service.is_token_blacklisted(refresh_token):
-                    print(f"❌ Blacklisted refresh token rejected")
+                    print(f" Blacklisted refresh token rejected")
                     raise HTTPException(
                         status_code=401,
                         detail="Refresh token has been revoked. Please login again."
@@ -245,7 +228,7 @@ class AuthManager:
             # Generate new access token
             new_access_token = AuthManager.create_access_token(user_id)
             
-            print(f"✅ New access token generated for user: {user_id}")
+            print(f" New access token generated for user: {user_id}")
             
             return {
                 "access_token": new_access_token,
@@ -256,7 +239,7 @@ class AuthManager:
         except HTTPException:
             raise
         except Exception as e:
-            print(f"❌ Refresh token error: {e}")
+            print(f" Refresh token error: {e}")
             raise HTTPException(
                 status_code=401,
                 detail=f"Failed to refresh token: {str(e)}"
@@ -266,17 +249,6 @@ class AuthManager:
     @staticmethod
     def authenticate_user(email: str, password: str) -> dict:
         """
-        Authenticate user against PostgreSQL database
-        
-        Args:
-            email: User email
-            password: Plain text password
-            
-        Returns:
-            dict: User data if authenticated
-            
-        Raises:
-            HTTPException: If authentication fails
         """
         conn = None
         cursor = None
@@ -310,7 +282,7 @@ class AuthManager:
                     detail="Invalid email or password"
                 )
             
-            print(f"✅ User authenticated from DB: {user_id}")
+            print(f" User authenticated from DB: {user_id}")
             
             return {
                 "user_id": user_id,
@@ -320,7 +292,7 @@ class AuthManager:
             }
             
         except psycopg2.Error as e:
-            print(f"❌ Database error: {e}")
+            print(f" Database error: {e}")
             raise HTTPException(
                 status_code=500,
                 detail="Database connection failed"
@@ -328,7 +300,7 @@ class AuthManager:
         except HTTPException:
             raise
         except Exception as e:
-            print(f"❌ Authentication error: {e}")
+            print(f" Authentication error: {e}")
             raise HTTPException(
                 status_code=500,
                 detail=f"Authentication failed: {str(e)}"
@@ -344,7 +316,6 @@ class AuthManager:
     def get_user_by_id(user_id: str) -> dict:
         """
         Get user details by ID from PostgreSQL database
-        
         Args:
             user_id: User identifier
             
@@ -405,7 +376,7 @@ class AuthManager:
             return user_data
             
         except psycopg2.Error as e:
-            print(f"❌ Database error: {e}")
+            print(f" Database error: {e}")
             raise HTTPException(
                 status_code=500,
                 detail="Database connection failed"
@@ -424,17 +395,10 @@ class AuthManager:
                 conn.close()
 
 
-# ============================================================================
-# FASTAPI DEPENDENCY FUNCTIONS
-# ============================================================================
-
 def get_current_user(
     credentials: HTTPAuthorizationCredentials = Security(security)
 ) -> str:
     """
-    FastAPI dependency to extract and verify user from JWT token
-    WITH BLACKLIST CHECK
-    
     This works perfectly with Swagger UI's 🔒 Authorize button
     
     Args:
@@ -442,14 +406,6 @@ def get_current_user(
         
     Returns:
         str: User ID extracted from token
-        
-    Raises:
-        HTTPException: If token is invalid, expired, or blacklisted
-        
-    Usage in FastAPI routes:
-        @app.get("/protected")
-        async def protected_route(current_user: str = Depends(get_current_user)):
-            return {"user_id": current_user}
     """
     try:
         # Extract token from credentials
@@ -461,7 +417,7 @@ def get_current_user(
             try:
                 is_blacklisted = _redis_service.is_token_blacklisted(token)
                 if is_blacklisted:
-                    print(f"❌ Blacklisted token rejected: {token[:20]}...")
+                    print(f" Blacklisted token rejected: {token[:20]}...")
                     raise HTTPException(
                         status_code=401,
                         detail="Token has been revoked. Please login again."
@@ -469,21 +425,21 @@ def get_current_user(
             except HTTPException:
                 raise
             except Exception as redis_error:
-                print(f"⚠️ Redis blacklist check failed: {redis_error}")
+                print(f"Redis blacklist check failed: {redis_error}")
                 # Continue without blacklist check if Redis fails
         else:
-            print("⚠️ Redis service not available - skipping blacklist check")
+            print(" Redis service not available - skipping blacklist check")
         
-        # Verify token and get payload (must be access token)
+        # Verify token and get payload 
         payload = AuthManager.verify_token(token, token_type="access")
         
-        # Return user_id
+       # user_id
         return payload["sub"]
         
     except HTTPException:
         raise
     except Exception as e:
-        print(f"❌ Authentication error: {e}")
+        print(f" Authentication error: {e}")
         raise HTTPException(
             status_code=401,
             detail=f"Authentication failed: {str(e)}"
@@ -523,4 +479,5 @@ def get_current_user_optional(
         payload = AuthManager.verify_token(token, token_type="access")
         return payload["sub"]
     except:
+
         return None
