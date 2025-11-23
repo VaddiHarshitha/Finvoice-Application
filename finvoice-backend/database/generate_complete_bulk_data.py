@@ -1,10 +1,3 @@
-"""
-Generate 100 COMPLETE test users with UNIQUE passwords and PINs
-- Each user gets unique email, password, phone, PIN
-- Option to merge with existing data
-- Backup old data before overwriting
-"""
-
 import json
 import random
 from datetime import datetime, timedelta
@@ -66,7 +59,7 @@ def backup_existing_data(filename):
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         backup_file = f"{filename}.backup_{timestamp}"
         shutil.copy2(filename, backup_file)
-        print(f"📦 Backed up existing data to: {backup_file}")
+        print(f" Backed up existing data to: {backup_file}")
         return backup_file
     return None
 
@@ -90,7 +83,7 @@ def generate_complete_data(num_users=100, start_id=1, demo_mode=False):
         demo_mode: If True, use simple passwords (demo123) for first 3 users
     """
     
-    print(f"🔧 Generating data for {num_users} users (starting from user{start_id:03d})...")
+    print(f" Generating data for {num_users} users (starting from user{start_id:03d})...")
     
     data = {
         "users": {},
@@ -151,7 +144,7 @@ def generate_complete_data(num_users=100, start_id=1, demo_mode=False):
             "name": name,
             "email": email,
             "phone": phone,
-            "pin": pin,  # ✅ UNIQUE PIN stored here
+            "pin": pin,  # UNIQUE PIN stored here
             "city": random.choice(CITIES),
             "joined": join_date.isoformat()
         }
@@ -161,8 +154,8 @@ def generate_complete_data(num_users=100, start_id=1, demo_mode=False):
             "user_id": user_id,
             "name": name,
             "email": email,
-            "password": password,  # ✅ UNIQUE PASSWORD
-            "pin": pin,            # ✅ UNIQUE PIN
+            "password": password,  # UNIQUE PASSWORD
+            "pin": pin,            # UNIQUE PIN
             "phone": phone
         })
         
@@ -275,14 +268,14 @@ def print_statistics(data):
     print("\n" + "="*70)
     print("  DATA GENERATION SUMMARY")
     print("="*70)
-    print(f"👥 Users:                {total_users:,}")
-    print(f"💳 Accounts:             {total_accounts:,}")
+    print(f" Users:                {total_users:,}")
+    print(f" Accounts:             {total_accounts:,}")
     print(f"   - With Loans:         {users_with_loans} ({users_with_loans/total_users*100:.1f}%)")
     print(f"   - Without Loans:      {total_users - users_with_loans} ({(total_users - users_with_loans)/total_users*100:.1f}%)")
-    print(f"👨‍👩‍👧‍👦 Beneficiaries:        {total_beneficiaries:,}")
-    print(f"💸 Transactions:         {total_transactions:,}")
-    print(f"🏦 Loans:                {total_loans} ({total_loans/total_users*100:.1f}%)")
-    print(f"⏰ Reminders:            {total_reminders}")
+    print(f" Beneficiaries:        {total_beneficiaries:,}")
+    print(f" Transactions:         {total_transactions:,}")
+    print(f" Loans:                {total_loans} ({total_loans/total_users*100:.1f}%)")
+    print(f" Reminders:            {total_reminders}")
     print(f"   - Users with reminders: {users_with_reminders} ({users_with_reminders/total_users*100:.1f}%)")
     print("="*70)
 
@@ -292,7 +285,7 @@ def save_credentials_file(credentials, filename="user_credentials.txt"):
         f.write("="*70 + "\n")
         f.write("FINVOICE TEST USER CREDENTIALS\n")
         f.write("="*70 + "\n\n")
-        f.write("⚠️  WARNING: This file contains plain text passwords!\n")
+        f.write("  WARNING: This file contains plain text passwords!\n")
         f.write("    DO NOT commit this file to version control!\n")
         f.write("    FOR TESTING PURPOSES ONLY!\n\n")
         f.write("="*70 + "\n\n")
@@ -315,7 +308,7 @@ def save_credentials_file(credentials, filename="user_credentials.txt"):
     print(f"🔑 Credentials saved to: {filename}")
 
 if __name__ == "__main__":
-    print("\n🚀 SECURE BULK DATA GENERATOR")
+    print("\n SECURE BULK DATA GENERATOR")
     print("="*70)
     
     # Configuration
@@ -328,7 +321,7 @@ if __name__ == "__main__":
     existing_data = load_existing_data(output_file)
     
     if existing_data:
-        print(f"\n⚠️  WARNING: File '{output_file}' already exists!")
+        print(f"\n WARNING: File '{output_file}' already exists!")
         print(f"   Found {len(existing_data.get('users', {}))} existing users")
         
         response = input("\n   Options:\n"
@@ -344,20 +337,20 @@ if __name__ == "__main__":
             backup_existing_data(output_file)
             existing_user_ids = [int(uid.replace('user', '')) for uid in existing_data.get('users', {}).keys()]
             start_id = max(existing_user_ids) + 1 if existing_user_ids else 1
-            print(f"\n✅ Will add {num_users} new users starting from user{start_id:03d}")
+            print(f"\n Will add {num_users} new users starting from user{start_id:03d}")
         else:
-            print("\n❌ Cancelled.")
+            print("\n Cancelled.")
             exit(0)
     else:
         start_id = 1
     
     # Generate data
-    print(f"\n🔄 Generating {num_users} users with UNIQUE passwords and PINs...")
+    print(f"\n Generating {num_users} users with UNIQUE passwords and PINs...")
     data = generate_complete_data(num_users=num_users, start_id=start_id, demo_mode=demo_mode)
     
     # Merge with existing data if needed
     if existing_data and response == "2":
-        print("\n🔄 Merging with existing data...")
+        print("\n Merging with existing data...")
         for key in ["users", "accounts", "beneficiaries", "transactions", "loans", "reminders"]:
             if key in existing_data:
                 data[key].update(existing_data[key])
@@ -365,8 +358,8 @@ if __name__ == "__main__":
         if "credentials" in existing_data:
             data["credentials"].extend(existing_data["credentials"])
     
-    # ✅ ADD PASSWORDS AND PINS TO USER DATA FOR DATABASE SETUP
-    print("\n🔐 Adding passwords and PINs to JSON for database setup...")
+    #  ADD PASSWORDS AND PINS TO USER DATA FOR DATABASE SETUP
+    print("\n Adding passwords and PINs to JSON for database setup...")
     for cred in data["credentials"]:
         user_id = cred["user_id"]
         if user_id in data["users"]:
@@ -385,18 +378,17 @@ if __name__ == "__main__":
     # Print statistics
     print_statistics(data)
     
-    print(f"\n✅ Data saved to: {output_file}")
+    print(f"\n Data saved to: {output_file}")
     print(f"🔑 Credentials saved to: {credentials_file}")
     
     print("\n" + "="*70)
-    print("📝 QUICK START - Easy Login Users:")
+    print(" QUICK START - Easy Login Users:")
     print("="*70)
     for cred in data["credentials"][:5]:
         print(f"Email: {cred['email']:40s} Password: {cred['password']:15s} PIN: {cred['pin']}")
     
-    print("\n⚠️  IMPORTANT:")
+    print("\n  IMPORTANT:")
     print("   - First 3 users have 'demo123' password for easy testing")
     print("   - ALL users have UNIQUE PINs (randomly generated)")
     print("   - Remaining users have unique secure passwords")
     print("   - Check 'user_credentials.txt' for all credentials")
-    print("   - DO NOT commit user_credentials.txt to git!")
