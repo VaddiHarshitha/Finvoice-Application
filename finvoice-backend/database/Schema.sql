@@ -1,7 +1,3 @@
-
--- ============================================
--- FINVOICE DATABASE SCHEMA
--- ============================================
 -- 1. USERS TABLE
 CREATE TABLE users (
 user_id VARCHAR(50) PRIMARY KEY,
@@ -142,9 +138,6 @@ CREATE INDEX idx_reminders_user ON payment_reminders(user_id);
 CREATE INDEX idx_reminders_due_date ON payment_reminders(due_date);
 CREATE INDEX IF NOT EXISTS idx_loans_status ON loans(status); 
 CREATE INDEX idx_loans_user ON loans(user_id);
--- ============================================
--- INDEXES FOR PERFORMANCE
--- ============================================
 CREATE INDEX idx_users_email ON users(email);
 CREATE INDEX idx_users_phone ON users(phone);
 CREATE INDEX idx_accounts_user ON accounts(user_id);
@@ -152,4 +145,5 @@ CREATE INDEX idx_transactions_user ON transactions(user_id);
 CREATE INDEX idx_transactions_timestamp ON transactions(timestamp DESC);
 CREATE INDEX idx_sessions_user ON sessions(user_id);
 CREATE INDEX idx_voice_sessions_user ON voice_sessions(user_id);
+
 CREATE INDEX idx_conversation_history_user ON conversation_history(user_id);
