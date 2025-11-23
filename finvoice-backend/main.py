@@ -40,7 +40,7 @@ from services.agentic_nlp import AgenticNLP
 from services.banking_service import BankingService
 from services.conversation_service import ConversationService
 from services.redis_service import RedisService
-from services.performance import performance_monitor  # ✅ FIXED: Use instance
+from services.performance import performance_monitor 
 from services.analytics import AnalyticsService
 
 load_dotenv()
@@ -1804,3 +1804,4 @@ if __name__ == "__main__":
     print("  Auto Cleanup")
     print("\n Press Ctrl+C to stop\n")
     uvicorn.run(app, host="0.0.0.0", port=8000, log_level="info")
+
