@@ -1,9 +1,3 @@
-"""
-Agentic NLP Processor using LangChain + Gemini
-WITH ENHANCED MULTILINGUAL SUPPORT AND OTP VERIFICATION
-UPDATED: Added Loans, Bill Payments, and Reminders support
-"""
-
 import os
 import re
 from typing import Dict, Any, List
@@ -16,7 +10,6 @@ from langchain.tools import Tool
 # Load environment
 load_dotenv()
 
-
 class AgenticNLP:
     """
     Intelligent AI Agent for Banking WITH MULTILINGUAL SUPPORT & OTP FLOW
@@ -28,8 +21,7 @@ class AgenticNLP:
     - Supports Loans, Bill Payments, and Reminders
     - Reasons about user intent
     - Makes decisions autonomously
-    """
-    
+    """    
     def __init__(self, banking_service=None):
         """
         Initialize Agentic AI with Gemini + Translation
@@ -37,7 +29,7 @@ class AgenticNLP:
         Args:
             banking_service: Banking service instance for executing operations
         """
-        print("🤖 Initializing Agentic AI...")
+        print(" Initializing Agentic AI...")
         
         # Store banking service reference
         self.banking_service = banking_service
@@ -69,14 +61,10 @@ class AgenticNLP:
             "pa": "Punjabi"
         }
         
-        print("✅ Agentic AI initialized with Gemini 2.0 Flash")
-        print(f"✅ Available tools: {len(self.tools)}")
-        print(f"✅ Supported languages: {len(self.supported_languages)}")
-    
-    
-    # =========================================
-    # TRANSLATION METHODS
-    # =========================================
+        print(" Agentic AI initialized with Gemini 2.0 Flash")
+        print(f" Available tools: {len(self.tools)}")
+        print(f" Supported languages: {len(self.supported_languages)}")
+
     
     def _translate_to_english(self, text: str, source_lang: str = "auto") -> tuple:
         """
@@ -107,33 +95,26 @@ class AgenticNLP:
             # Translate
             translated = translator.translate(text)
             
-            print(f"🌍 Translation: '{text}' ({detected}) → '{translated}' (en)")
+            print(f" Translation: '{text}' ({detected}) → '{translated}' (en)")
             return translated, detected
             
         except Exception as e:
-            print(f"⚠️ Translation failed: {e}. Using original text.")
+            print(f" Translation failed: {e}. Using original text.")
             return text, "en"
-    
-    
     def _translate_response(self, text: str, target_lang: str = "en") -> str:
         """
-        Translate response back to target language, PRESERVING OTP pattern
-        
+        Translate response back to target language, PRESERVING OTP pattern      
         Args:
             text: Response text in English
             target_lang: Target language code
-            
         Returns:
             str: Translated response with OTP preserved in English
         """
-        # If target is English, return as is
         if target_lang in ["en", "en-IN", "en-US"]:
             return text
-        
         try:
             from deep_translator import GoogleTranslator
-            
-            # STEP 1: Extract OTP pattern BEFORE translation
+            # STEP 1: Extract OTP pattern
             otp_match = re.search(r'(OTP:\s*\d{6})', text)
             otp_text = ""
             text_without_otp = text
@@ -141,28 +122,20 @@ class AgenticNLP:
             if otp_match:
                 otp_text = " " + otp_match.group(1)  # Keep with space
                 text_without_otp = text.replace(otp_match.group(1), "").strip()
-                print(f"🔐 Extracted OTP pattern: {otp_match.group(1)}")
+                print(f" Extracted OTP pattern: {otp_match.group(1)}")
             
             # STEP 2: Translate the text WITHOUT OTP
             translator = GoogleTranslator(source='en', target=target_lang)
             translated = translator.translate(text_without_otp)
-            
             # STEP 3: Re-add OTP in ENGLISH at the end
-            final_response = translated + otp_text
-            
-            print(f"🌍 Response translation: (en) → ({target_lang})")
-            print(f"✅ Final response: {final_response[:100]}...")
-            
+            final_response = translated + otp_text      
+            print(f" Response translation: (en) → ({target_lang})")
+            print(f" Final response: {final_response[:100]}...")
             return final_response
             
         except Exception as e:
-            print(f"⚠️ Response translation failed: {e}. Using English.")
+            print(f" Response translation failed: {e}. Using English.")
             return text
-    
-    
-    # =========================================
-    # TOOLS DEFINITION (UPDATED)
-    # =========================================
     
     def _create_tools(self) -> List[Tool]:
         """
@@ -228,11 +201,6 @@ class AgenticNLP:
         ]
         
         return tools
-    
-    
-    # =========================================
-    # EXISTING TOOL IMPLEMENTATIONS
-    # =========================================
     
     def _tool_check_balance(self, user_id: str) -> str:
         """Tool: Check account balance"""
@@ -318,20 +286,13 @@ class AgenticNLP:
     def _tool_list_beneficiaries(self, user_id: str) -> str:
         """Tool: List all beneficiaries"""
         if not self.banking_service:
-            return "Banking service not available"
-        
+            return "Banking service not available"   
         beneficiaries = self.banking_service.get_beneficiaries(user_id)
-        
         if beneficiaries:
             names = [f"{b['nickname']} ({b['full_name']})" for b in beneficiaries]
             return f"You can send money to: {', '.join(names)}"
         else:
             return "No beneficiaries found. Please add beneficiaries first."
-    
-    
-    # =========================================
-    # NEW TOOL IMPLEMENTATIONS 👇
-    # =========================================
     
     def _tool_check_loans(self, user_id: str) -> str:
         """Tool: Check user's loans"""
@@ -445,11 +406,6 @@ class AgenticNLP:
         except Exception as e:
             return f"Error: {str(e)}"
     
-    
-    # =========================================
-    # OTP VERIFICATION METHODS
-    # =========================================
-    
     def _is_otp_verification(self, text_english: str, text_original: str) -> bool:
         """Check if user is providing OTP"""
         otp_keywords_english = [
@@ -470,8 +426,7 @@ class AgenticNLP:
         has_six_digits = len(digits) == 6
         
         return has_otp_keyword_english or has_otp_keyword_original or has_six_digits
-    
-    
+        
     def _extract_otp(self, text: str) -> str:
         """Extract 6-digit OTP from text"""
         digits = ''.join(re.findall(r'\d', text))
@@ -480,21 +435,16 @@ class AgenticNLP:
             return digits[:6]
         
         return None
-    
-    
-    # =========================================
-    # MAIN PROCESSING METHOD (UPDATED)
-    # =========================================
+
     
     def process(self, text: str, user_id: str = "user001", language: str = "auto") -> Dict[str, Any]:
         """
         Process user input with multilingual support and ALL features
-        """
-        
+        """ 
         try:
-            print(f"\n🤖 Agent processing: '{text}'")
-            print(f"👤 User ID: {user_id}")
-            print(f"🌍 Input Language: {language}")
+            print(f"\n Agent processing: '{text}'")
+            print(f" User ID: {user_id}")
+            print(f" Input Language: {language}")
             
             # STEP 1: Translate to English
             text_english, detected_lang = self._translate_to_english(text, language)
@@ -505,23 +455,17 @@ class AgenticNLP:
             intent = "UNKNOWN"
             otp_extracted = None
             
-            # =========================================
-            # 1. OTP VERIFICATION (HIGHEST PRIORITY)
-            # =========================================
             if self._is_otp_verification(text_lower, text_original_lower):
                 otp_extracted = self._extract_otp(text_english)
                 
                 if otp_extracted:
                     tool_result = f"OTP_PROVIDED:{otp_extracted}"
                     intent = "OTP_VERIFICATION"
-                    print(f"✅ OTP detected: {otp_extracted}")
+                    print(f" OTP detected: {otp_extracted}")
                 else:
                     tool_result = "Could not extract OTP. Please say your 6-digit OTP clearly."
                     intent = "OTP_VERIFICATION_FAILED"
-            
-            # =========================================
-            # 2. LOAN QUERIES 🏦
-            # =========================================
+
             elif self._is_loan_query(text_lower, text_original_lower):
                 # Check if asking for eligibility
                 if self._is_loan_eligibility_query(text_lower):
@@ -552,40 +496,20 @@ class AgenticNLP:
                 else:
                     tool_result = "Please specify the bill type and amount. For example: 'Pay my electricity bill of 2500'"
                     intent = "BILL_PAYMENT"
-            
-            # =========================================
-            # 4. PAYMENT REMINDERS ⏰
-            # =========================================
             elif self._is_reminder_query(text_lower, text_original_lower):
                 days = self._extract_number(text_english, default="7")
                 tool_result = self._tool_get_upcoming_payments(f"{user_id}|{days}")
                 intent = "UPCOMING_PAYMENTS"
-            
-            # =========================================
-            # 5. CHECK BALANCE
-            # =========================================
             elif self._is_balance_query(text_lower, text_original_lower):
                 tool_result = self._tool_check_balance(user_id)
                 intent = "CHECK_BALANCE"
-            
-            # =========================================
-            # 6. LIST BENEFICIARIES
-            # =========================================
             elif self._is_list_beneficiaries_query(text_lower, text_original_lower):
                 tool_result = self._tool_list_beneficiaries(user_id)
                 intent = "LIST_BENEFICIARIES"
-            
-            # =========================================
-            # 7. TRANSACTION HISTORY
-            # =========================================
             elif self._is_transaction_query(text_lower, text_original_lower):
                 count = self._extract_number(text_english, default="5")
                 tool_result = self._tool_get_transactions(f"{user_id}|{count}")
-                intent = "TRANSACTION_HISTORY"
-            
-            # =========================================
-            # 8. TRANSFER MONEY
-            # =========================================
+                intent = "TRANSACTION_HISTORY"          
             elif self._is_transfer_query(text_lower, text_original_lower):
                 amount = self._extract_number(text_english)
                 recipient = self._extract_recipient(text_lower, user_id)
@@ -600,10 +524,6 @@ class AgenticNLP:
                 else:
                     tool_result = self._execute_transfer(user_id, recipient, amount)
                     intent = "FUND_TRANSFER"
-            
-            # =========================================
-            # 9. GENERAL INQUIRY
-            # =========================================
             else:
                 tool_result = self._get_help_message()
                 intent = "GENERAL_INQUIRY"
@@ -613,7 +533,6 @@ class AgenticNLP:
                 response_translated = tool_result
             else:
                 response_translated = self._translate_response(tool_result, detected_lang)
-            
             # Store in history
             self.conversation_history.append({
                 "user": text,
@@ -640,7 +559,7 @@ class AgenticNLP:
             return result
         
         except Exception as e:
-            print(f"❌ Error: {str(e)}")
+            print(f" Error: {str(e)}")
             import traceback
             traceback.print_exc()
             
@@ -755,11 +674,6 @@ class AgenticNLP:
             'biller_name': None
         }
     
-    
-    # =========================================
-    # EXISTING INTENT DETECTION METHODS
-    # =========================================
-    
     def _is_balance_query(self, text_english: str, text_original: str) -> bool:
         """Check if query is about balance"""
         balance_keywords = ['balance', 'how much money', 'account', 'funds', 'available']
@@ -776,8 +690,7 @@ class AgenticNLP:
         has_transfer = any(keyword in text_english for keyword in transfer_keywords)
         
         return (has_balance_english or has_balance_original) and not has_transfer
-    
-    
+
     def _is_list_beneficiaries_query(self, text_english: str, text_original: str) -> bool:
         """Check if query is asking for list of beneficiaries"""
         list_phrases = [
@@ -839,7 +752,6 @@ class AgenticNLP:
             'pathabo', 'den', 'pathav', 'pathva', 'pathwa', 'pathavun', 'rupaye',
             'de', 'dya', 'moklo', 'apo', 'rupiya'
         ]
-        
         has_amount = bool(re.search(r'\d{3,}', text_english))
         has_recipient = any(name in text_english for name in ['mom', 'dad', 'brother', 'sister', 'mother', 'father']) or \
                        any(name in text_original for name in ['man', 'ko', 'amma', 'ammavukku', 'appa', 'anna'])
@@ -847,17 +759,13 @@ class AgenticNLP:
         has_transfer_english = any(keyword in text_english for keyword in transfer_keywords)
         has_transfer_multilang = any(keyword in text_original for keyword in multilang_transfer)
         
-        return has_transfer_english or has_transfer_multilang or (has_amount and has_recipient)
-    
-    
+        return has_transfer_english or has_transfer_multilang or (has_amount and has_recipient)   
     def _extract_number(self, text: str, default: str = None) -> str:
         """Extract number from text"""
         numbers = re.findall(r'\d+', text)
         if numbers:
             return str(max(int(n) for n in numbers))
         return default
-    
-    
     def _extract_recipient(self, text: str, user_id: str) -> str:
         """Extract recipient from text"""
         recipient_keywords = [
@@ -888,8 +796,7 @@ class AgenticNLP:
                     return ben['nickname']
         
         return None
-    
-    
+     
     def _execute_transfer(self, user_id: str, recipient: str, amount: str) -> str:
         """Execute multi-step transfer process"""
         try:
@@ -921,33 +828,30 @@ class AgenticNLP:
         """Get help message for user"""
         return """I can help you with:
 
-💰 Check Balance: "What's my balance?"
+ Check Balance: "What's my balance?"
 
-💸 Transfer Money: "Send 5000 to Mom"
+ Transfer Money: "Send 5000 to Mom"
 
-📜 Transaction History: "Show my last 5 transactions"
+ Transaction History: "Show my last 5 transactions"
 
-👥 List Beneficiaries: "Who can I send money to?"
+ List Beneficiaries: "Who can I send money to?"
 
-🏦 Loans: "What are my loans?" or "Am I eligible for a loan of 500000?"
+ Loans: "What are my loans?" or "Am I eligible for a loan of 500000?"
 
-💡 Bill Payments: "Pay my electricity bill of 2500"
+ Bill Payments: "Pay my electricity bill of 2500"
 
-⏰ Upcoming Payments: "What payments are due?"
+ Upcoming Payments: "What payments are due?"
 
 How can I help you today?"""
     
     
-    # =========================================
-    # CONVERSATION MANAGEMENT
-    # =========================================
-    
     def reset_memory(self):
         """Clear conversation history"""
         self.conversation_history = []
-        print("🔄 Conversation memory cleared")
+        print(" Conversation memory cleared")
     
     
     def get_memory(self) -> List[Dict]:
         """Get conversation history"""
+
         return self.conversation_history
