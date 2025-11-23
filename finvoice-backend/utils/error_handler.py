@@ -1,8 +1,3 @@
-"""
-Centralized Error Handling and Logging for FinVoice
-Makes debugging easier and improves production readiness
-"""
-
 import logging
 from datetime import datetime
 from fastapi import HTTPException
@@ -28,11 +23,6 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 error_logger = logging.getLogger('errors')
 
-
-# ============================================================================
-# CUSTOM EXCEPTIONS
-# ============================================================================
-
 class AppError(Exception):
     """Base application error"""
     def __init__(self, message: str, status_code: int = 500, details: Dict = None):
@@ -40,7 +30,6 @@ class AppError(Exception):
         self.status_code = status_code
         self.details = details or {}
         super().__init__(self.message)
-
 
 class ValidationError(AppError):
     """Validation error (400)"""
@@ -50,18 +39,15 @@ class ValidationError(AppError):
             details['field'] = field
         super().__init__(message, 400, details)
 
-
 class AuthenticationError(AppError):
     """Authentication error (401)"""
     def __init__(self, message: str = "Authentication failed"):
         super().__init__(message, 401)
 
-
 class AuthorizationError(AppError):
     """Authorization error (403)"""
     def __init__(self, message: str = "Access denied"):
         super().__init__(message, 403)
-
 
 class NotFoundError(AppError):
     """Not found error (404)"""
@@ -71,7 +57,6 @@ class NotFoundError(AppError):
             message += f": {identifier}"
         super().__init__(message, 404, {"resource": resource, "identifier": identifier})
 
-
 class BankingError(AppError):
     """Banking operation error (500)"""
     def __init__(self, message: str, operation: str = None, details: Dict = None):
@@ -79,17 +64,10 @@ class BankingError(AppError):
         if operation:
             details['operation'] = operation
         super().__init__(message, 500, details)
-
-
 class ServiceUnavailableError(AppError):
     """Service unavailable error (503)"""
     def __init__(self, service: str):
         super().__init__(f"{service} is currently unavailable", 503, {"service": service})
-
-
-# ============================================================================
-# ERROR LOGGING
-# ============================================================================
 
 def log_error(
     error: Exception,
@@ -137,7 +115,6 @@ def log_error(
     
     return error_data
 
-
 def log_warning(
     message: str,
     user_id: Optional[str] = None,
@@ -166,11 +143,6 @@ def log_info(
         "context": context or {}
     }
     logger.info(json.dumps(info_data, indent=2))
-
-
-# ============================================================================
-# ERROR HANDLING
-# ============================================================================
 
 def handle_api_error(
     error: Exception,
@@ -239,11 +211,6 @@ def handle_api_error(
             }
         )
 
-
-# ============================================================================
-# ERROR RATE TRACKING
-# ============================================================================
-
 error_counts = {}
 
 def track_error(endpoint: str, error_type: str):
@@ -259,11 +226,6 @@ def get_error_stats() -> Dict[str, Any]:
         "by_endpoint": error_counts,
         "timestamp": datetime.now().isoformat()
     }
-
-
-# ============================================================================
-# HELPER FUNCTIONS
-# ============================================================================
 
 def validate_required_fields(data: Dict, required_fields: list) -> None:
     """
@@ -303,14 +265,9 @@ def safe_divide(a: float, b: float, default: float = 0.0) -> float:
     except ZeroDivisionError:
         return default
 
-
-# ============================================================================
-# TESTING
-# ============================================================================
-
 if __name__ == "__main__":
     # Test error handling
-    print("🧪 Testing Error Handler...\n")
+    print(" Testing Error Handler...\n")
     
     # Test 1: ValidationError
     try:
@@ -336,5 +293,6 @@ if __name__ == "__main__":
         print(f"Test 3 - BankingError: {http_exc.status_code}")
         print(f"   Detail: {http_exc.detail}\n")
     
-    print("✅ Error handler tests complete!")
-    print(f"📄 Check logs/app.log and logs/errors.log")
+    print(" Error handler tests complete!")
+
+    print(f" Check logs/app.log and logs/errors.log")
