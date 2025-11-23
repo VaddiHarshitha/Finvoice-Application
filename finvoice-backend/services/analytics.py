@@ -1,7 +1,3 @@
-"""
-Analytics Service for Business Metrics
-"""
-
 import psycopg2
 from datetime import datetime, timedelta
 from typing import Dict, Any
@@ -40,7 +36,7 @@ class AnalyticsService:
                 "avg_conversations_per_user": round(total_conversations / max(active_users, 1), 2)
             }
         except Exception as e:
-            print(f"❌ Analytics error: {e}")
+            print(f" Analytics error: {e}")
             return {
                 "period_days": days,
                 "total_conversations": 0,
@@ -77,7 +73,7 @@ class AnalyticsService:
                 "total_amount": round(total_amount, 2)
             }
         except Exception as e:
-            print(f"❌ Analytics error: {e}")
+            print(f" Analytics error: {e}")
             return {
                 "period_days": days,
                 "total_transactions": 0,
@@ -100,4 +96,5 @@ class AnalyticsService:
             "monthly_conversations": monthly_conversations,
             "monthly_savings_inr": monthly_savings,
             "annual_savings_inr": monthly_savings * 12
+
         }
