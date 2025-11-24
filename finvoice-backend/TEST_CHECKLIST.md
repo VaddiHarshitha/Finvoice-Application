@@ -1,6 +1,5 @@
-# 🧪 Voice API Testing Checklist
+# Voice API Testing Checklist
 
-## Progress: 0/16 Completed
 
 **Generated:** 16 test audio files
 **Server:** http://localhost:8000/docs
@@ -8,7 +7,7 @@
 
 ---
 
-## 📋 Test Instructions
+##  Test Instructions
 
 1. Start server: `python main.py`
 2. Open: http://localhost:8000/docs
@@ -141,7 +140,7 @@
 
 ---
 
-## ✅ Expected Response Format
+##  Expected Response Format
 ```json
 {
   "success": true,
@@ -156,7 +155,7 @@
 
 ---
 
-## 📊 Test Results
+## Test Results
 
 | Category | Tests | Passed | Failed |
 |----------|-------|--------|--------|
@@ -170,16 +169,14 @@
 
 ---
 
-## 🎯 Success Criteria
+##  Success Criteria
 
-- ✅ All tests return `"success": true`
-- ✅ Intent matches expected
-- ✅ Confidence > 0.85
-- ✅ Response in correct language
-- ✅ Response time < 5 seconds
+-  All tests return `"success": true`
+-  Intent matches expected
+-  Confidence > 0.85
+-  Response in correct language
+-  Response time < 5 seconds
 
 ---
 
-**Notes:**
-(Add any observations or issues here)
 
